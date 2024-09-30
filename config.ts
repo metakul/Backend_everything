@@ -13,5 +13,6 @@ export default {
     HOST: process.env.HOST || 'localhost',
     PORT: process.env.PORT || 5000,
     saltRounds:process.env.SALT_ROUND || 10,
-    JWT_SECRET:process.env.JWT_SECRET
+    JWT_SECRET:process.env.JWT_SECRET,
+    THIRDWEB_SECRET_KEY:process.env.THIRDWEB_SECRET_KEY
 };
