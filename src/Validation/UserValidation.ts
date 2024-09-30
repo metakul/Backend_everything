@@ -1,0 +1,84 @@
+import {  IsystemAdmin, IUser } from "../DataTypes/interfaces/IUser";
+import { encryptPassword } from "../Utils/scripts/encryptPassword.js";
+import {InitSuperAdminSchema, LoginUser, RegisterUserSchema, UserUpdateScehma } from "../Schema/UserScehema.js";
+import { MongooseError } from "../DataTypes/enums/Error.js";
+import { logWithMessageAndStep } from "../Helpers/Logger/logger.js";
+import winston from "winston";
+
+
+export const SystemAdminValidation = {
+  async validateAsync(data: IsystemAdmin,childLogger:any) {
+    logWithMessageAndStep(childLogger, "Step 2", "Validating Form Input schema", "Create_superAdmin", JSON.stringify(data),"info");
+
+    const parsed = InitSuperAdminSchema.safeParse(data);
+    if (parsed.success) {
+    logWithMessageAndStep(childLogger,"Step 3","Validated Data After zod schema check","Create_superAdmin",JSON.stringify(parsed),"debug")
+
+      const { password } = data;
+  
+      const hashPassword = await encryptPassword(password,childLogger)
+      parsed.data.password = hashPassword;
+      logWithMessageAndStep(childLogger,"Step 4","Password Hashing after schema test","Create_superAdmin",JSON.stringify(hashPassword),"info")
+  
+      return parsed.data;
+    }
+    else{
+      logWithMessageAndStep(childLogger,"Error Step","Failed Validating User","Create_superAdmin",JSON.stringify(data),"warn")
+      throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path)
+    }
+  }
+};
+
+export const UserValidation = {
+  async validateAsync(data: IUser,childLogger:any) {
+    logWithMessageAndStep(childLogger,"Step 2","Validating Form Input schema","register",JSON.stringify(data),"info")
+    
+    const parsed = RegisterUserSchema.safeParse(data);
+    logWithMessageAndStep(childLogger,"Step 3","Validated Data After zod schema check","register",JSON.stringify(parsed),"debug")
+    if (parsed.success) {
+      const { password } = data;
+  
+      const hashPassword = await encryptPassword(password,childLogger)
+      parsed.data.password = hashPassword;
+      logWithMessageAndStep(childLogger,"Step 4","Password Hashing after schema test","register",JSON.stringify(hashPassword),"info")
+      return parsed.data as IUser;
+    }
+    else{
+      logWithMessageAndStep(childLogger,"Error Step","Failed Validating User","register",JSON.stringify(data),"warn")
+      throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path)
+    }
+  }
+};
+
+export const UpdateUserValidation = {
+  async validateAsync(data: IUser,childLogger:winston.Logger ) {
+    logWithMessageAndStep(childLogger, "Step 2", "Validating FormData Schema to Update user", "updateUser", JSON.stringify(data),"info");
+
+  const parsed = UserUpdateScehma.safeParse(data);
+  if (parsed.success) {
+    logWithMessageAndStep(childLogger,"Step 3","Validated Data After zod schema check","updateUser",JSON.stringify(parsed),"debug")
+    return parsed.data as IUser;
+  }
+  else{
+    logWithMessageAndStep(childLogger,"Error Step","Failed Validating User ","updateUser",JSON.stringify(data),"warn")
+    throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path)
+  }
+  }
+};
+
+export const LoginValidation = {
+  async validateAsync(data: IsystemAdmin, childLogger: any) {
+      logWithMessageAndStep(childLogger, "Step 2", "Starting validation", "validateAsync", JSON.stringify(data.email), "info");
+
+      const parsed = LoginUser.safeParse(data);
+      logWithMessageAndStep(childLogger, "Step 3", "Parsing validation result", "validateAsync", JSON.stringify(parsed.data?.email), "info");
+
+      if (parsed.success) {
+          logWithMessageAndStep(childLogger, "Step 4", "Validation successful", "validateAsync", JSON.stringify(data.email), "info");
+          return data;
+      } else {
+          logWithMessageAndStep(childLogger, "Error Step", "Validation failed", "validateAsync", JSON.stringify(parsed.error.issues), "warn");
+          throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path);
+      }
+  }
+};

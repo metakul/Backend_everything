@@ -1,0 +1,233 @@
+import { IloginUser, IsystemAdmin, IUser } from "../interfaces/IUser";
+import { AccountStatusType, CategoryType, ErrorObject } from "../types/IUserType";
+
+
+export const ErrorEnum = {
+
+    InternalserverError: (error?: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: `Internal Server Error`,
+        details: error
+    }),
+    SignUpValidationError: (data: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: `User validation Failed. Please Check the Form. Check '${data}'`,
+        details: ""
+    }),
+    MissingEmail: (): ErrorObject => ({
+        statusCode: 400,
+        message: `Please add a proper email to interact.`,
+        details: ""
+    }),
+    UserNotFoundwithEmail: (email: IloginUser['email']): ErrorObject => ({
+        statusCode: 404,
+        message: `User with email '${email}' does not exist.`,
+        details: ""
+    }),
+    UserPasswordError: (email: IloginUser['email']): ErrorObject => ({
+        statusCode: 401,
+        message: `Wrong password received for '${email}' `,
+        details: ""
+    }),
+    UserNotFoundwithStatus: (accountStatus: AccountStatusType): ErrorObject => ({
+        statusCode: 404,
+        message: `Error Fetching users with status '${accountStatus}'`,
+        details: ""
+    }),
+    NoUsersFound: (accountStatus: AccountStatusType): ErrorObject => ({
+        statusCode: 404,
+        message: `No users Found with status '${accountStatus}'`,
+        details: ""
+    }),
+    InvalidAccountStatus: (currentStatus: AccountStatusType): ErrorObject => ({
+        statusCode: 404,
+        message: `Invalid Account Status. Current Status of user is '${currentStatus}'`,
+        details: ""
+    }),
+    InvalidAccountCategory: (userEmail: IUser["email"] | undefined): ErrorObject => ({
+        statusCode: 404,
+        message: `Invalid Account Category for user '${userEmail}'`,
+        details: ""
+    }),
+    MissingAlias: (): ErrorObject => ({
+        statusCode: 400,
+        message: `Please add a proper alias to interact.`,
+        details: ""
+    }),
+    MissingCredential: (): ErrorObject => ({
+        statusCode: 400,
+        message: `Please add a proper Credential in the form.`,
+        details: ""
+    }),
+    PermissionDeniedError: (requiredCategory: CategoryType): ErrorObject => ({
+        statusCode: 400,
+        message: `Only ${requiredCategory} can call this`,
+        details: ``
+    }),
+    MissingJwt: (): ErrorObject => ({
+        statusCode: 400,
+        message: `UnAuthorised User.`,
+        details: `Missing JWT from the user`
+    }),
+    MissingAuth: (): ErrorObject => ({
+        statusCode: 400,
+        message: `UnAuthorised User.`,
+        details: `Auth Header Is Not Present`
+    }),
+    InvalidJwt: (err: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: `Invalid User JWT`,
+        details: err
+    }),
+    InvalidJwtSecret: (): ErrorObject => ({
+        statusCode: 400,
+        message: `Invalid JWT SECRET`,
+        details: ""
+    }),
+};
+
+
+export const APIKeyError = {
+    NoAPIKey: (): ErrorObject => ({
+        statusCode: 400,
+        message: "No API Key Received",
+        details: `No API KEY PROVIDED BY FRONTEND`
+    }),
+    ErrorValidatingAPIKey: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Received Wrong API KEY",
+        details: `API validation failed`
+    }),
+    NoAPIKeyFound: (): ErrorObject => ({
+        statusCode: 400,
+        message: "No API key Found for User in DB.",
+        details: `API validation failed`
+    }),
+}
+
+export const MongooseError = {
+    ErrorOfMongoose: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Check Form Data",
+        details: `Oho. Error Via Prisma. Check if database is working Properly. `
+    }),
+    InvalidDataTypes: (ErrorInfo: unknown, path?: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Check Form Data",
+        details: `Invalid details provided. ${JSON.stringify(ErrorInfo)} for ${path} `
+    }),
+    DatabaseConnectionError: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Prisma is not connected",
+        details: ""
+    }),
+}
+
+export const SuperAdminError = {
+    SuperAdminInitError: (): ErrorObject => ({
+        statusCode: 400,
+        message: "A Super admin already exists.",
+        details: ``
+    }),
+    ErrorCreatingUser: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Unknown Error While creating Super Admin.",
+        details: ``
+    }),
+    ErrorLoginSuperAdmin: (email: IsystemAdmin["email"]): ErrorObject => ({
+        statusCode: 400,
+        message: `System admin Not initialise with email ${email}.`,
+        details: ``
+    }),
+}
+export const PermissionError = {
+    NotEnoughPermission: (permission: string): ErrorObject => ({
+        statusCode: 400,
+        message: "User do not Have Enough permisison.",
+        details: `use should have permission ${permission}`
+    }),
+    UnknownUserError: (): ErrorObject => ({
+        statusCode: 400,
+        message: "User Info Not received to check permisison.",
+        details: ``
+    }),
+}
+
+export const RoleErrors = {
+    RoleNotFound: (): ErrorObject => ({
+        statusCode: 404,
+        message: 'Role not found',
+        details: ''
+    }),
+    InvalidPermissions: (): ErrorObject => ({
+        statusCode: 400,
+        message: 'Invalid permissions name specified',
+        details: ''
+    }),
+    RoleCreationFailed: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: 'Role creation failed',
+        details: error
+    }),
+    RoleUpdateFailed: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: 'Role update failed',
+        details: error
+    })
+};
+
+export const IdentifierErrorEnum = {
+
+    createDIDError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error Creating DID",
+        details: error
+    }),
+    createIdentifierError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error Creating Idenitfier",
+        details: error
+    }),
+    createCredentialError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error Creating Credentials",
+        details: error
+    }),
+    createVerifiablePresentationError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error Creating Verifiable Presentation",
+        details: error
+    }),
+    verifyPresentationError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error verifying Presentation",
+        details: error
+    }),
+    createSDRVerifyCredentialError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error Verifying SDR Credential",
+        details: error
+    }),
+    createSDRError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error Creating SDR ",
+        details: error
+    }),
+    credInfoError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Invalid credential: unable to determine holder ID",
+        details: error
+    }),
+    //get
+    getVerifiableCredentialForSDRError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error fetching credentials",
+        details: error
+    }),
+    listIdentifierError: (error: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: "Error fetching Identifiers",
+        details: error
+    }),
+}
+
