@@ -51,8 +51,8 @@ model Role {
 
 
 // Example Prisma schema update
-model Bot {
-  id             String   @id @default(cuid())
+model bot {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
   alias          String
   userId        String
   filePath      String

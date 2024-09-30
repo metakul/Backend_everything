@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.14.0",
+    "@thirdweb-dev/storage": "^2.0.15",
     "@veramo/core": "^5.1.2",
     "@veramo/credential-eip712": "^5.5.0",
     "@veramo/credential-ld": "^5.5.0",
