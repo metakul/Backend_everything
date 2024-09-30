@@ -49,3 +49,24 @@ model Role {
   // users       users[]
 }
 
+
+// Example Prisma schema update
+model Bot {
+  id             String   @id @default(cuid())
+  alias          String
+  userId        String
+  filePath      String
+  episode       String?
+  mediaName     String?
+  videoDuration  Int?
+  videoQuantity  Int?
+  videoTocut    Int?
+  accessToken    String?
+  location      String?
+  hashtags      String?
+  caption       String?
+  status        String    @default("running") // "running", "paused"
+  cronSchedule  String?  // E.g., "1 */4 * * *"
+  isPaused      Boolean   @default(false)
+  nextRun       DateTime? // Optional: Track the next run time
+}

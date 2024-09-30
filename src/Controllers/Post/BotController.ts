@@ -9,6 +9,10 @@ import { prisma } from "../../db/client.js";
 import { genAPIKey } from "../../Utils/scripts/genAPIKey.js";
 import { logWithMessageAndStep } from "../../Helpers/Logger/logger.js";
 import winston from 'winston';
+import path from "path"
+import { startBot } from "../../Projects/bots/main";
+import cron from 'node-cron';
+const scheduledJobs: { [key: string]: cron.ScheduledTask } = {};
 
 /**
  * add new user
@@ -242,43 +246,292 @@ export const updateUser = async (
 };
 
 
-/**
- * Post user credentials 
- * @param 
- */
+// Bot Controller
+import fs from 'fs';
 export const create_bot = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction
 ) => {
     try {
-        const { _alias } = req.body
+        const {
+            _alias,
+            episode,
+            mediaName,
+            videoDuration,
+            videoQuantity,
+            videoTocut,
+            accessToken,
+            location,
+            hashtags,
+            caption,
+            cronSchedule // New parameter for scheduling
+        } = req.body;
 
+        // Validate required fields
         if (!_alias) {
-            throw ErrorEnum.MissingAlias()
+            throw ErrorEnum.MissingAlias();
         }
 
-        else {
-            await new Promise((resolve, reject) => {
-                try {
-                    console.log("saved config file");  // Log the message
-                } catch (error) {
-                    reject(error);  // If any error occurs, reject the promise
-                }
-            })
-                .then(async (result) => {
-                    res.json({
-                        message: `Credential SuccessFully Created For ${_alias}`,
-                        result: result,
-                        statusCode: 200
-                    });
-                })
-                .catch((error) => {
-                    return next(error);  // Pass the error to the next middleware (e.g., error handler)
-                });
-            
+        const user = req.user as IUser; // Get user from request
+        const userId = user.id; // Get user ID
+
+        // Check if the file was uploaded
+        if (!req.file) {
+            throw new Error('File upload failed or no file provided.');
         }
+
+        // Prepare directories
+        const inputDir = path.join('uploads', userId.toString(), 'input');
+        const outputDir = path.join('uploads', userId.toString(), 'output');
+
+        fs.mkdirSync(inputDir, { recursive: true });
+        fs.mkdirSync(outputDir, { recursive: true });
+
+        // Save the uploaded file
+        const inputFilePath = path.join(inputDir, req.file.filename);
+        fs.renameSync(req.file.path, inputFilePath);
+
+        // Prepare the config object
+        const config = {
+            episode,
+            mediaName,
+            videoDuration,
+            videoQuantity,
+            videoTocut,
+            accessToken,
+            location,
+            hashtags,
+            caption,
+            inputVideo: inputFilePath,
+            outputDir: outputDir,
+            beepAudio: 'postAssets/input/beep.mp3', // Adjust if necessary
+        };
+
+        // Check if a cron schedule is provided
+        let job;
+        if (cronSchedule) {
+            job = cron.schedule(cronSchedule, () => {
+                startBot(config); // Start bot based on config
+            });
+            job.start();
+        } else {
+            await startBot(config); // Start immediately if no schedule
+        }
+
+        // Create the bot in the database
+        const newBot = await prisma.bot.create({
+            data: {
+                alias: _alias,
+                userId: userId,
+                filePath: inputFilePath,
+                episode,
+                mediaName,
+                videoDuration,
+                videoQuantity,
+                videoTocut,
+                accessToken,
+                location,
+                hashtags,
+                caption,
+                cronSchedule, // Save the schedule to the database
+            },
+        });
+
+        // Store the job in memory if it's scheduled
+        if (job) {
+            scheduledJobs[newBot.id] = job;
+        }
+
+        res.status(201).json({
+            success: true,
+            data: newBot,
+            message: 'Bot created and started successfully.'
+        });
     } catch (error) {
-        return next(error)
+        next(error);
     }
 };
+
+
+
+
+
+
+// New function to get bots
+export const get_bots = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const user = req.user as IUser; // Assuming user is attached to req
+        const userId = user.id; // Get user ID
+
+          // Fetch bots for the logged-in user using Prisma
+          const bots = await prisma.bot.findMany({
+            where: { userId: userId },
+        });
+        // Check if any bots were found
+        if (!bots.length) {
+            return res.status(404).json({
+                success: false,
+                message: 'No bots found for this user.'
+            });
+        }
+
+        // Respond with the retrieved bots
+        res.status(200).json({
+            success: true,
+            data: bots,
+            message: 'Bots retrieved successfully.'
+        });
+    } catch (error) {
+        next(error); // Pass the error to the error handler middleware
+    }
+};
+
+
+export const update_bot = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { botId } = req.params;
+        const {
+            episode,
+            mediaName,
+            videoDuration,
+            videoQuantity,
+            videoTocut,
+            accessToken,
+            location,
+            hashtags,
+            caption,
+            cronSchedule // New field to update the cron schedule
+        } = req.body;
+
+        const existingBot = await prisma.bot.findUnique({
+            where: { id: botId },
+        });
+
+        if (!existingBot) {
+            throw ErrorEnum.BotNotFound();
+        }
+
+        const updatedData: any = {};
+        
+        // Update fields if provided
+        if (episode !== undefined) updatedData.episode = episode;
+        if (mediaName !== undefined) updatedData.mediaName = mediaName;
+        if (videoDuration !== undefined) updatedData.videoDuration = videoDuration;
+        if (videoQuantity !== undefined) updatedData.videoQuantity = videoQuantity;
+        if (videoTocut !== undefined) updatedData.videoTocut = videoTocut;
+        if (accessToken !== undefined) updatedData.accessToken = accessToken;
+        if (location !== undefined) updatedData.location = location;
+        if (hashtags !== undefined) updatedData.hashtags = hashtags;
+        if (caption !== undefined) updatedData.caption = caption;
+        
+        // Check if cronSchedule is provided for updating
+        if (cronSchedule !== undefined) {
+            updatedData.cronSchedule = cronSchedule;
+
+            // If job already exists, stop it
+            const job = scheduledJobs[botId];
+            if (job) {
+                job.stop(); // Stop existing job
+                delete scheduledJobs[botId]; // Remove from scheduled jobs
+            }
+
+            // Create new scheduled job
+            const newJob = cron.schedule(cronSchedule, () => {
+                startBot(existingBot); // Start bot with existing config
+            });
+            newJob.start(); // Start new job
+
+            // Store the new job
+            scheduledJobs[botId] = newJob;
+        }
+
+        // Update the bot in the database
+        const updatedBot = await prisma.bot.update({
+            where: { id: botId },
+            data: updatedData,
+        });
+
+        res.status(200).json({
+            success: true,
+            data: updatedBot,
+            message: 'Bot updated successfully.',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+export const pause_bot = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { botId } = req.params;
+
+        // Pause the job if it exists
+        const job = scheduledJobs[botId];
+        if (job) {
+            job.stop();
+        }
+
+        // Update the bot status to 'paused'
+        const updatedBot = await prisma.bot.update({
+            where: { id: botId },
+            data: { status: 'paused', isPaused: true },
+        });
+
+        res.status(200).json({
+            success: true,
+            data: updatedBot,
+            message: 'Bot paused successfully.',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export const resume_bot = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { botId } = req.params;
+
+        // Resume the job if it exists
+        const job = scheduledJobs[botId];
+        if (job) {
+            job.start();
+        }
+
+        // Update the bot status to 'running'
+        const updatedBot = await prisma.bot.update({
+            where: { id: botId },
+            data: { status: 'running', isPaused: false },
+        });
+
+        res.status(200).json({
+            success: true,
+            data: updatedBot,
+            message: 'Bot resumed successfully.',
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+

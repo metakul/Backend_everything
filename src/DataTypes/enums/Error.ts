@@ -84,6 +84,11 @@ export const ErrorEnum = {
         message: `Invalid JWT SECRET`,
         details: ""
     }),
+    BotNotFound: (): ErrorObject => ({
+        statusCode: 400,
+        message: `Bot Not Found JWT SECRET`,
+        details: ""
+    }),
 };
 
 

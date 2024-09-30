@@ -4,6 +4,7 @@ import CommonRoutes from './CommonRoutes/CommonRoutes.js';
 import SuperAdminRoutes from './SuperAdminRoutes/SuperAdminRoutes.js';
 import RoleRoutes from './RolePermRoutes/RoleRoutes.js';
 import PermissionRoutes from './RolePermRoutes/PermissionRoutes.js';
+import BotRoutes from './BotRoutes/BotRoutes.js';
 import handleError from "../Middleware/error.js";
 import { Request, Response, NextFunction } from "express";
 import { MongooseError } from "../DataTypes/enums/Error.js";
@@ -60,6 +61,11 @@ router.use(
   "/V1",
   CheckPrismaConnection,
   PermissionRoutes
+);
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  BotRoutes
 );
 
 router.use(handleError)
