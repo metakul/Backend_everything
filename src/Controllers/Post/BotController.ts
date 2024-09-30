@@ -10,7 +10,7 @@ import { genAPIKey } from "../../Utils/scripts/genAPIKey.js";
 import { logWithMessageAndStep } from "../../Helpers/Logger/logger.js";
 import winston from 'winston';
 import path from "path"
-import { startBot } from "../../Projects/bots/main";
+import { startBot } from "../../Projects/bots/main.js";
 import cron from 'node-cron';
 const scheduledJobs: { [key: string]: cron.ScheduledTask } = {};
 
@@ -254,6 +254,11 @@ export const create_bot = async (
     next: NextFunction
 ) => {
     try {
+
+        // Check if the file was uploaded
+        if (!req.file) {
+            throw ErrorEnum.MissingFIle()
+        }
         const {
             _alias,
             episode,
@@ -276,10 +281,6 @@ export const create_bot = async (
         const user = req.user as IUser; // Get user from request
         const userId = user.id; // Get user ID
 
-        // Check if the file was uploaded
-        if (!req.file) {
-            throw new Error('File upload failed or no file provided.');
-        }
 
         // Prepare directories
         const inputDir = path.join('uploads', userId.toString(), 'input');

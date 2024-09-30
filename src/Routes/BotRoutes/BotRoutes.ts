@@ -13,7 +13,7 @@ const botMulter = dynamicMulter('bots', ['.jpg', '.png', '.gif', '.pdf'], 10); /
 
 // POST request for creating a bot
 router.post("/create_bot",
-    checkJwt,
+    // checkJwt,
     // CheckPermission(CreatePermissionControl.can_create_credential),
     botMulter.single('botFile'), // Use multer for single file upload
     BotController.create_bot

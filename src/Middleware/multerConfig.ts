@@ -9,7 +9,7 @@ type AllowedFileTypes = string[];
 const dynamicMulter = (
   folderName: string,
   allowedFileTypes: AllowedFileTypes = [],
-  maxSizeInMB: number = 2
+  maxSizeInMB: number = 2048
 ) => {
   const storage = multer.diskStorage({
     destination: (req: Request, file: Express.Multer.File, cb) => {

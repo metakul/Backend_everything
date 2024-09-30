@@ -1,4 +1,4 @@
-import config from "../../../../config";
+import config from "../../../../config.js";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import fs from 'fs'; // Node.js file system module to read files
 import path from 'path'; // Module for handling file paths

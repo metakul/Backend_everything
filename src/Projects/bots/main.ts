@@ -1,7 +1,7 @@
 import fs from 'fs';
 import dotenv from 'dotenv'; // Load environment variables
-import { cropVideo } from './Helpers/VideoProcessing';  // Import the cropVideo function
-import { startUploadSession } from './Helpers/upload';
+import { cropVideo } from './Helpers/VideoProcessing.js';  // Import the cropVideo function
+import { startUploadSession } from './Helpers/upload.js';
 
 // Load environment variables
 dotenv.config();

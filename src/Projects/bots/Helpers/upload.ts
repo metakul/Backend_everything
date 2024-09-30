@@ -1,6 +1,6 @@
 import axios from 'axios';
 import path from 'path';
-import { addFileToIPFS } from './Thirdweb';
+import { addFileToIPFS } from './Thirdweb.js';
 
 // Type definitions for Instagram user details
 interface InstagramUserDetails {

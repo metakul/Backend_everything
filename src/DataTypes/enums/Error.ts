@@ -59,6 +59,11 @@ export const ErrorEnum = {
         message: `Please add a proper Credential in the form.`,
         details: ""
     }),
+    MissingFIle: (): ErrorObject => ({
+        statusCode: 400,
+        message: `Please add a proper File to upload.`,
+        details: ""
+    }),
     PermissionDeniedError: (requiredCategory: CategoryType): ErrorObject => ({
         statusCode: 400,
         message: `Only ${requiredCategory} can call this`,
