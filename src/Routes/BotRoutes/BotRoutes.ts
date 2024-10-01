@@ -9,8 +9,7 @@ import dynamicMulter from "../../Middleware/multerConfig.js";
 const router = express.Router({ mergeParams: true });
 
 // Configure multer for bot creation
-const botMulter = dynamicMulter('bots', ['.jpg', '.png', '.gif', '.pdf'], 10); // Example: Allow images and PDF, max 10MB
-
+const botMulter = dynamicMulter('videos', ['.mp4', '.avi', '.mkv' , ".png"], 2048);
 // POST request for creating a bot
 router.post("/create_bot",
     // checkJwt,

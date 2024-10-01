@@ -1,6 +1,10 @@
 import axios from 'axios';
-import path from 'path';
 import { addFileToIPFS } from './Thirdweb.js';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Type definitions for Instagram user details
 interface InstagramUserDetails {
