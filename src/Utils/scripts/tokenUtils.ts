@@ -32,7 +32,7 @@ export const generateToken = (user: IUserWithDid | IsystemAdmin): string => {
                 email: user.email,
                 address: user.address,
                 permissions: user.permissions,
-                publicKey: user.publicKey,
+                // publicKey: user.publicKey,
             },
             JWT_SECRET as string,
             { expiresIn: "30h" }

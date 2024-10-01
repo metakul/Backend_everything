@@ -1,5 +1,5 @@
 import { W3CVerifiableCredential } from '@veramo/core'
-import { IdentifierErrorEnum } from '../../DataTypes/enums/Error'
+import { IdentifierErrorEnum } from '../../DataTypes/enums/Error.js'
 import { agent } from './setup.js'
 
 export async function createSDRverifyCredential(credential : W3CVerifiableCredential ) {

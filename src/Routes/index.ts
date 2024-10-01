@@ -1,5 +1,5 @@
 import express from "express";
-// import UserRoutes from './UserRoutes/UserRoutes.js';
+import UserRoutes from './UserRoutes/UserRoutes.js';
 import CommonRoutes from './CommonRoutes/CommonRoutes.js';
 import SuperAdminRoutes from './SuperAdminRoutes/SuperAdminRoutes.js';
 import RoleRoutes from './RolePermRoutes/RoleRoutes.js';
@@ -31,12 +31,12 @@ const CheckPrismaConnection = async (
 };
 
 // // user routes
-// router.use(
-//   "/V1",
-//   CheckPrismaConnection,
-//   // TODO ADD MIDDLEWARE
-//   UserRoutes
-// );
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  // TODO ADD MIDDLEWARE
+  UserRoutes
+);
 
 //system Admin Routes
 router.use(

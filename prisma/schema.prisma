@@ -17,16 +17,6 @@ model users {
   name           String
   password       String
   phoneNumber    String    @unique(map: "phoneNumber_1")
-  publicKey      String?   @map("publicKey")
-  privateKey     String?   @map("privateKey")
-  didCreated     Boolean?  @map("didCreated")
-  did            String?   @map("did")
-  api_key        String?   @map("api_key")
-  controllerKeyId String?  @map("controllerKeyId")
-  IssueCredentialCount Int?  @map("IssueCredentialCount")
-  keys           Json?     @map("keys")
-  services       Json?     @map("services")
-  provider       String?   @map("provider")
   updatedAt      DateTime  @updatedAt @map("updatedAt")
   permissions    String[]
   roleId         String?

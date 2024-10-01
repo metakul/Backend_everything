@@ -1,4 +1,4 @@
-import { IdentifierErrorEnum } from "../../DataTypes/enums/Error";
+import { IdentifierErrorEnum } from "../../DataTypes/enums/Error.js";
 import { agent } from './setup.js';
 
 

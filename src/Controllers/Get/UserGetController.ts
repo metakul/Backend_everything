@@ -35,10 +35,8 @@ export const orgList = async (
                     email: true,
                     name: true,
                     phoneNumber: true,
-                    didCreated: true,
                     category: true,
                     accountStatus: true,
-                    did: true,
                     createdAt: true,
                     updatedAt: true,
                 },
@@ -77,76 +75,3 @@ export const orgList = async (
     }
 };
 
-
-// Function to get the IssueCredentialCount for a user by email
-export const getIssueCredentialCount = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const { _alias } = req.query
-
-        if (!_alias) {
-            throw ErrorEnum.MissingAlias()
-        }
-        const IssueCredentialCount = await prisma.users.findUnique({
-            where: { email: _alias as string },
-            select: { IssueCredentialCount: true }
-        });
-
-        res.json({
-            message:`Total Credential Count Fetched for ${_alias}`,
-            data:IssueCredentialCount,
-            statusCode:200
-        });
-    } catch (error) {
-        return next(error)
-    }
-};
-
-
-/**
- * Get user credentials for SDR
- * @param 
- */
-export const getCredentialsforSDR = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const claimType = req.query.claimType as string; // Ensure claimType is of type string
-        const result = await getVerifiableCredentialForSDR(claimType);
-        res.json({
-            message:`Credential Fetched For claimType ${claimType}`,
-            data:result,
-            statusCode:200
-            });
-    } catch (error) {
-        return next(error)
-    }
-};
-
-/**
- * Get user all identifiers
- * @param 
- */
-export const allIdentifiers = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const result = await listIdentifiers();
-        res.json({ 
-            message:`Identifiers Fetched SuccessFully`,
-            data:{
-                number: result?.length, result: result
-            },
-            statusCode:200
-        });
-    } catch (error) {
-        return next(error)
-    }
-};

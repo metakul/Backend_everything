@@ -24,10 +24,9 @@ export interface IUser extends IloginUser {
 }
 
 export interface IUserWithDid extends IUser {
-    didCreated: boolean;
-    api_key: string
-    publicKey?: string;
-    privateKey: string;
+    // api_key: string
+    // publicKey?: string;
+    // privateKey?: string;
 }
 
 export interface ICredentialSubject {

@@ -13,6 +13,11 @@ import path from "path"
 import { startBot } from "../../Projects/bots/main.js";
 import cron from 'node-cron';
 const scheduledJobs: { [key: string]: cron.ScheduledTask } = {};
+import { fileURLToPath } from 'url';
+
+// Define __dirname manually in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * add new user
@@ -60,29 +65,6 @@ const processUpdateUser = async (
             accountStatus: userModelValidation.accountStatus,
         };
 
-        const existingUser = await prisma.users.findUnique({
-            where: { id: user.id },
-            select: { didCreated: true }
-        });
-        logWithMessageAndStep(childLogger, "Step 5", "Updating user and checks for DID+apikey Is created or not", "updateUser", JSON.stringify(existingUser), "debug");
-
-        if (userModelValidation.accountStatus === accountStatus.Approved && existingUser && existingUser.didCreated !== true) {
-
-            logWithMessageAndStep(childLogger, "Step 5-A", "Creating DID and Apikey", "updateUser", "", "silly");
-
-            const api_key = await genAPIKey(childLogger)
-
-            logWithMessageAndStep(childLogger, "Step 5-B", "Apikey Created", "updateUser", JSON.stringify(api_key), "debug");
-
-
-            Object.assign(updateFields, {
-                api_key: api_key,
-                didCreated: true,
-            });
-        }
-
-        logWithMessageAndStep(childLogger, "Step 6", "Feilds after DID check to update user", "updateUser", JSON.stringify(updateFields), "debug");
-
         await prisma.users.update({
             where: { id: user.id },
             data: updateFields
@@ -95,8 +77,6 @@ const processUpdateUser = async (
                 email: true,
                 category: true,
                 accountStatus: true,
-                didCreated: true,
-                did: true,
                 createdAt: true,
                 updatedAt: true
             }
@@ -249,23 +229,23 @@ export const updateUser = async (
 // Bot Controller
 import fs from 'fs';
 export const create_bot = async (
-    req: RequestWithUser,
+    req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-
         // Check if the file was uploaded
         if (!req.file) {
-            throw ErrorEnum.MissingFIle()
+            throw ErrorEnum.MissingFIle();
         }
+
         const {
             _alias,
             episode,
             mediaName,
-            videoDuration,
-            videoQuantity,
-            videoTocut,
+            // videoDuration,
+            // videoQuantity,
+            // videoTocut,
             accessToken,
             location,
             hashtags,
@@ -273,18 +253,23 @@ export const create_bot = async (
             cronSchedule // New parameter for scheduling
         } = req.body;
 
+        const videoDuration=30
+        const videoQuantity=1
+        const videoTocut=1
+
         // Validate required fields
         if (!_alias) {
             throw ErrorEnum.MissingAlias();
         }
 
-        const user = req.user as IUser; // Get user from request
-        const userId = user.id; // Get user ID
+        const userId = "user.id"; // Get user ID, you should update this to get from req.user if needed.
 
+        const assetsPath = path.join(__dirname, '../../Projects/bots/assets');
 
         // Prepare directories
-        const inputDir = path.join('uploads', userId.toString(), 'input');
-        const outputDir = path.join('uploads', userId.toString(), 'output');
+        const inputDir = path.join(assetsPath, userId.toString(), 'input');
+        const outputDir = path.join(assetsPath, userId.toString(), 'output');
+        const beepSounds = path.join(assetsPath);
 
         fs.mkdirSync(inputDir, { recursive: true });
         fs.mkdirSync(outputDir, { recursive: true });
@@ -292,6 +277,9 @@ export const create_bot = async (
         // Save the uploaded file
         const inputFilePath = path.join(inputDir, req.file.filename);
         fs.renameSync(req.file.path, inputFilePath);
+
+        const custoIinputFilePath = `${inputDir}/samay.mp4`;
+        const customOutputFilePath = `${outputDir}`;
 
         // Prepare the config object
         const config = {
@@ -304,23 +292,15 @@ export const create_bot = async (
             location,
             hashtags,
             caption,
-            inputVideo: inputFilePath,
-            outputDir: outputDir,
-            beepAudio: 'postAssets/input/beep.mp3', // Adjust if necessary
+            inputVideo: custoIinputFilePath,
+            outputDir: customOutputFilePath,
+            beepAudio: `${beepSounds}/beep.mp3`,
         };
 
-        // Check if a cron schedule is provided
-        let job;
-        if (cronSchedule) {
-            job = cron.schedule(cronSchedule, () => {
-                startBot(config); // Start bot based on config
-            });
-            job.start();
-        } else {
-            await startBot(config); // Start immediately if no schedule
-        }
+        console.log(config);
 
-        // Create the bot in the database
+
+        // Create the bot in the database first
         const newBot = await prisma.bot.create({
             data: {
                 alias: _alias,
@@ -339,18 +319,31 @@ export const create_bot = async (
             },
         });
 
-        // Store the job in memory if it's scheduled
-        if (job) {
-            scheduledJobs[newBot.id] = job;
-        }
-
+        // Respond early before the cron job or bot starts
         res.status(201).json({
             success: true,
             data: newBot,
-            message: 'Bot created and started successfully.'
+            message: cronSchedule
+                ? 'Bot created and scheduled successfully.'
+                : 'Bot created and started immediately.',
         });
+
+        // After responding, start the cron job or run the bot immediately
+        let job;
+        if (cronSchedule) {
+            job = cron.schedule(cronSchedule, () => {
+                startBot(config); // Start bot based on config
+            });
+            job.start();
+
+            // Store the job in memory if it's scheduled
+            scheduledJobs[newBot.id] = job;
+        } else {
+            await startBot(config); // Start immediately if no schedule
+        }
     } catch (error) {
-        next(error);
+        console.log(error);
+        next(error); // Pass the error to the error handler
     }
 };
 

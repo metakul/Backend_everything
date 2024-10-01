@@ -27,7 +27,6 @@ export const profile = async (
                     category: true,
                     address: true,
                     email: true,
-                    didCreated: true,
                 },
             });
 

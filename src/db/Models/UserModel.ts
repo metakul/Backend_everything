@@ -18,18 +18,18 @@ const userSchema:Schema = new mongoose.Schema({
         type: String,
         required: true
     },
-    publicKey: {
-        type: String,
-        // required: true
-    },
+    // publicKey: {
+    //     type: String,
+    //     // required: true
+    // },
     address: {
         type: String,
         required: true
     },
-    privateKey: {
-        type: String,
-        // required: true
-    },
+    // privateKey: {
+    //     type: String,
+    //     // required: true
+    // },
     accountStatus: {
         type: String,
         enum: ['approved', 'rejected', 'pending']

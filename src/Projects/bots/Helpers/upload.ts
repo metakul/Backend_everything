@@ -98,7 +98,7 @@ const publishInstagramMedia = async (igId: string, creationId: string, accessTok
 // Function to get file path for both reels (videos) and photos (images)
 const getFilePath = (folderName: string, mediaName: string, mediaType: 'VIDEO' | 'IMAGE'): string => {
   const extension = mediaType === 'VIDEO' ? '.mp4' : '.png';
-  return path.join(__dirname, `../postAssets/${folderName}/${mediaName}${extension}`);
+  return path.join(`${folderName}/${mediaName}${extension}`);
 };
 
 // Function to get file URL for media

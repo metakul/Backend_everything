@@ -10,6 +10,8 @@ export default async function handleError(
   res: Response,
   _next: NextFunction
 ) {
+  console.log(err);
+  
   const parsed = ErrorSchema.safeParse(err);
   if (parsed.success) {
 

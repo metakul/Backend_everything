@@ -34,7 +34,7 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
     const thumbOffset = "";
     await startUploadSession(
       config.accessToken,
-      config.folderName,
+      config.outputDir,
       config.mediaName,
       mediaType,
       config.caption,
@@ -49,7 +49,7 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
     // Increment media name for the next upload
     config.mediaName++;
   } catch (error) {
-    console.error(`Error during ${mediaType} upload process:`, error);
+    console.error(`Error during ${mediaType} upload process:`);
 
     // Retry logic
     if (retryCount < 3) {
@@ -63,14 +63,8 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
 };
 
 // Function to start the bot and handle video uploads
-const startBot = async (config: any): Promise<void> => {
-  console.log('Starting bot for video upload...');
+export const startBot = async (config: any): Promise<void> => {
+  console.log('Starting bot for video upload...',config);
   ensureOutputDirExists(config.outputDir); // Ensure the output directory exists
   await runUploadProcess('VIDEO', config); // Start upload process with config
 };
-
-// You can manage cron jobs within the update_bot function, so remove the scheduling logic here
-// Example: Scheduled jobs are handled in the update_bot function
-
-// Export startBot if needed elsewhere
-export { startBot };
