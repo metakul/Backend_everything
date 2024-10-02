@@ -27,7 +27,7 @@ export const checkUserCategoryExists = async (
             user: JSON.stringify(user),
             email: JSON.stringify(email)
         }), "info")
-        if (user && user.category === UserCategory.Issuer || UserCategory.Holder || UserCategory.Verifier) {
+        if (user && user.category === UserCategory.User || UserCategory.Holder || UserCategory.Verifier) {
             logWithMessageAndStep(childLogger, "Check Category Step 2", "Category varified to handle next API", "checkUserCategoryExists", JSON.stringify(user?.category), "debug")
 
             req.user = user as IUserWithDid;

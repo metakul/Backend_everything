@@ -8,6 +8,6 @@ export enum accountStatus {
 export enum UserCategory {
     Verifier = 'verifier',
     Holder = 'holder',
-    Issuer = 'issuer',
+    User = 'user',
     SUPER_ADMIN = 'SUPER_ADMIN',
 }
