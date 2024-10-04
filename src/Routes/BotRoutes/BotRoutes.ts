@@ -12,7 +12,7 @@ const router = express.Router({ mergeParams: true });
 const botMulter = dynamicMulter('videos', ['.mp4', '.avi', '.mkv' , ".png"], 2048);
 // POST request for creating a bot
 router.post("/create_bot",
-    // checkJwt,
+    checkJwt,
     // CheckPermission(CreatePermissionControl.can_create_credential),
     botMulter.single('botFile'), // Use multer for single file upload
     BotController.create_bot
@@ -23,8 +23,8 @@ router.get("/bots", checkJwt, BotController.get_bots);
 
 
 // Add the routes in your Express application
-router.put('/bots/:botId/pause', BotController.pause_bot); // Pause bot route
-router.put('/bots/:botId/resume', BotController.resume_bot); // Resume bot route
+router.put('/bots/:botId/pause',checkJwt, BotController.pause_bot); // Pause bot route
+router.put('/bots/:botId/resume',checkJwt, BotController.resume_bot); // Resume bot route
 
 
 // Assuming your bot routes are grouped together

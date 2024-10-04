@@ -229,7 +229,7 @@ export const updateUser = async (
 // Bot Controller
 import fs from 'fs';
 export const create_bot = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction
 ) => {
@@ -262,13 +262,17 @@ export const create_bot = async (
             throw ErrorEnum.MissingAlias();
         }
 
-        const userId = "user.id"; // Get user ID, you should update this to get from req.user if needed.
+        const user = req.user as IUser; // Assuming user is attached to req
 
+        const userId = user.email as string; // Get user ID, you should update this to get from req.user if needed.
+
+        console.log(user);
+        
         const assetsPath = path.join(__dirname, '../../Projects/bots/assets');
 
         // Prepare directories
-        const inputDir = path.join(assetsPath, userId.toString(), 'input');
-        const outputDir = path.join(assetsPath, userId.toString(), 'output');
+        const inputDir = path.join(assetsPath,  'input');
+        const outputDir = path.join(assetsPath,  'output');
         const beepSounds = path.join(assetsPath);
 
         fs.mkdirSync(inputDir, { recursive: true });
@@ -360,7 +364,7 @@ export const get_bots = async (
 ) => {
     try {
         const user = req.user as IUser; // Assuming user is attached to req
-        const userId = user.id; // Get user ID
+        const userId = user.email; // Get user ID
 
           // Fetch bots for the logged-in user using Prisma
           const bots = await prisma.bot.findMany({
