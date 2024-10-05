@@ -11,14 +11,18 @@ const PORT = config.PORT
 const app: Express = express();
 
 app.use(express.json());
-// cors
-app.use(cors());
 
-app.use(bodyParser.json());
-const corsOptions = {
-    origin: '*', // Allow requests from all origins
-  };
-app.use(cors(corsOptions));
+// cors
+app.use(cors({
+  origin: '*', // or specify the domain explicitly
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Payload limit 10MB or more
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
 //conect db
 isDatabaseHealthy()
 
