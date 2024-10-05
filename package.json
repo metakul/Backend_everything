@@ -9,7 +9,7 @@
     "prod": "export NODE_ENV=production && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
     "docker:build": "sudo docker build -t vc-c3i .",
     "docker:start": "sudo docker run -p 8003:8001 vc-c3i",
-    "build": "npm install && npx prisma init"
+    "build": "npm install && npx prisma generate"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
