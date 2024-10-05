@@ -5,8 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "export NODE_ENV=development&& node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
-    "prod": "export NODE_ENV=production&& node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
+    "dev": "export NODE_ENV=development && npx prisma generate && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
+    "prod": "export NODE_ENV=production && npx prisma generate && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
     "docker:build": "sudo docker build -t vc-c3i .",
     "docker:start": "sudo docker run -p 8003:8001 vc-c3i"
   },
