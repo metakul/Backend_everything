@@ -1,24 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Response, NextFunction, Request } from 'express';
 import { prisma } from '../db/client.js';
 import { IsystemAdmin, IUserWithDid } from '../DataTypes/interfaces/IUser.js';
-import { ErrorEnum } from '../DataTypes/enums/Error.js';
+import { CommonError, ErrorEnum } from '../DataTypes/enums/Error.js';
 import winston from 'winston';
 import { logWithMessageAndStep } from '../Helpers/Logger/logger.js';
+
+{/*
+  // Should be used only while login or when one user want to interact with other user
+ // should be used only with req.body
+  */}
 export interface LoginUserRequest extends Request {
   user?: IUserWithDid | IsystemAdmin;
-  email?: string
+  identifier?: string; 
 }
+
 export const checkUserExists = async (
   req: LoginUserRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
+  identifierType: 'email' | 'phoneNumber'
 ) => {
-  let email: string | undefined;
+  let identifier: string | undefined;
   if (req.method === 'GET') {
-    email = req.query.email as string;
+    identifier = req.query[identifierType] as string;
   } else if (req.method === 'POST' || req.method === 'PATCH') {
-    email = req.body.email;
+    identifier = req.body[identifierType];
   }
 
   const childLogger = (req as any).childLogger as winston.Logger;
@@ -29,37 +35,57 @@ export const checkUserExists = async (
   }
 
   try {
-    logWithMessageAndStep(childLogger, "Check User Step 1", "Check if email is provided", "checkUserExists", JSON.stringify({ email: email }), "silly");
-    if (!email) {
-      logWithMessageAndStep(childLogger, "Error Check User Step", "Missing email in request", "checkUserExists", {}, "warn");
+    logWithMessageAndStep(childLogger, "Check User Step 1", `Check if ${identifierType} is provided`, "checkUserExists", JSON.stringify({ identifier }), "silly");
+
+    if (!identifier && identifierType === 'email') {
+      logWithMessageAndStep(childLogger, "Error Check User Step", `Missing ${identifierType} in request`, "checkUserExists", {}, "warn");
       throw ErrorEnum.MissingEmail();
     }
-    // Search for the user in both collections
-    let user
-    user = await prisma.users.findUnique({
-      where: { email: email }
-    });
 
-    if (!user) {
-      user = await prisma.superAdmin.findUnique({
-        where: { email: email }
+    if (!identifier && identifierType === 'phoneNumber') {
+      logWithMessageAndStep(childLogger, "Error Check User Step", `Missing ${identifierType} in request`, "checkUserExists", {}, "warn");
+      throw CommonError.MissingPhoneNumber();
+    }
+
+    logWithMessageAndStep(childLogger, "Check User Step 2", `Searching for user in db`, "checkUserExists", JSON.stringify({ identifier }), "silly");
+
+    // Search for the user in the users collection only
+    let user;
+    if (identifierType === 'email') {
+      user = await prisma.users.findUnique({
+        where: { email: identifier }
+      });
+      if(!user){
+        user = await prisma.superAdmin.findUnique({
+          where: { email: identifier }
+        });
+      }
+    } else if (identifierType === 'phoneNumber') {
+      user = await prisma.users.findUnique({
+        where: { phoneNumber: identifier }
       });
     }
 
-    logWithMessageAndStep(childLogger, "Check User Step 2", "Check if user exists in the database", "checkUserExists", JSON.stringify({ user: user }), "debug");
-    if (!user) {
-      logWithMessageAndStep(childLogger, "Error Check User Step", "User not found", "checkUserExists", JSON.stringify({ email: email }), "error");
-      throw ErrorEnum.UserNotFoundwithEmail(email);
+    logWithMessageAndStep(childLogger, "Check User Step 3", "Check if user exists in the database", "checkUserExists", JSON.stringify({ user }), "debug");
+
+    if (!user && identifierType === 'email') {
+      logWithMessageAndStep(childLogger, "Error Check User Step", `User not found with ${identifierType}: ${identifier}`, "checkUserExists", JSON.stringify({ identifier }), "error");
+      throw ErrorEnum.UserNotFoundwithEmail(identifier);
+    }
+
+    if (!user && identifierType === 'phoneNumber') {
+      logWithMessageAndStep(childLogger, "Error Check User Step", `User not found with ${identifierType}: ${identifier}`, "checkUserExists", JSON.stringify({ identifier }), "error");
+      throw ErrorEnum.UserNotFoundwithPhone(identifier);
     }
 
     req.user = user as unknown as IUserWithDid | IsystemAdmin;
-    req.email = email
+    req.identifier = identifier;
 
-    logWithMessageAndStep(childLogger, "Check User Step 3", "User found and added to request", "checkUserExists", JSON.stringify({ user: req.user }), "debug");
+    logWithMessageAndStep(childLogger, "Check User Step 4", "User found and added to request", "checkUserExists", JSON.stringify({ user: req.user }), "debug");
 
     next();
   } catch (error) {
-    logWithMessageAndStep(childLogger, "Error Check User Step", "Error occurred while checking user", "checkUserExists", JSON.stringify({ error: error }), "error");
+    logWithMessageAndStep(childLogger, "Error Check User Step", "Error occurred while checking user", "checkUserExists", JSON.stringify({ error }), "error");
     next(error);
   }
 };

@@ -1,6 +1,6 @@
 import {  IsystemAdmin, IUser } from "../DataTypes/interfaces/IUser";
 import { encryptPassword } from "../Utils/scripts/encryptPassword.js";
-import {InitSuperAdminSchema, LoginUser, RegisterUserSchema, UserUpdateScehma } from "../Schema/UserScehema.js";
+import {InitSuperAdminSchema, LoginUser, RegisterUserSchema, ResetPasswordSchema, UpdatePasswordSchema, UserUpdateScehma } from "../Schema/UserScehema.js";
 import { MongooseError } from "../DataTypes/enums/Error.js";
 import { logWithMessageAndStep } from "../Helpers/Logger/logger.js";
 import winston from "winston";
@@ -12,7 +12,7 @@ export const SystemAdminValidation = {
 
     const parsed = InitSuperAdminSchema.safeParse(data);
     if (parsed.success) {
-    logWithMessageAndStep(childLogger,"Step 3","Validated Data After zod schema check","Create_superAdmin",JSON.stringify(parsed),"debug")
+    logWithMessageAndStep(childLogger,"Step 3","Validated Data After zod schema check","Create_superAdmin","Password Hidden","debug")
 
       const { password } = data;
   
@@ -80,5 +80,50 @@ export const LoginValidation = {
           logWithMessageAndStep(childLogger, "Error Step", "Validation failed", "validateAsync", JSON.stringify(parsed.error.issues), "warn");
           throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path);
       }
+  }
+};
+
+
+export const ResetPasswordValidation = {
+  async validateAsync(data: any, childLogger: winston.Logger) {
+    logWithMessageAndStep(childLogger, "Step 2", "Validating Form Input schema", "resetPassword", JSON.stringify(data), "info");
+
+    const parsed = ResetPasswordSchema.safeParse(data);
+    if (parsed.success) {
+      logWithMessageAndStep(childLogger, "Step 3", "Validated Data After zod schema check", "resetPassword", JSON.stringify(parsed), "debug");
+
+      const { newPassword } = data;
+
+      const hashPassword = await encryptPassword(newPassword, childLogger);
+      parsed.data.newPassword = hashPassword;
+      logWithMessageAndStep(childLogger, "Step 4", "Password Hashing after schema test", "resetPassword", JSON.stringify(hashPassword), "info");
+
+      return parsed.data;
+    } else {
+      logWithMessageAndStep(childLogger, "Error Step", "Failed Validating User", "resetPassword", JSON.stringify(data), "warn");
+      throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path);
+    }
+  }
+};
+
+export const UpdatePasswordValidation = {
+  async validateAsync(data: any, childLogger: winston.Logger) {
+    logWithMessageAndStep(childLogger, "Step 2", "Validating Form Input schema", "updatePassword", JSON.stringify(data), "info");
+
+    const parsed = UpdatePasswordSchema.safeParse(data);
+    if (parsed.success) {
+      logWithMessageAndStep(childLogger, "Step 3", "Validated Data After zod schema check", "updatePassword", JSON.stringify(parsed), "debug");
+
+      const { newPassword } = data;
+
+      const hashPassword = await encryptPassword(newPassword, childLogger);
+      parsed.data.newPassword = hashPassword;
+      logWithMessageAndStep(childLogger, "Step 4", "Password Hashing after schema test", "updatePassword", JSON.stringify(hashPassword), "info");
+
+      return parsed.data;
+    } else {
+      logWithMessageAndStep(childLogger, "Error Step", "Failed Validating User", "updatePassword", JSON.stringify(data), "warn");
+      throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path);
+    }
   }
 };

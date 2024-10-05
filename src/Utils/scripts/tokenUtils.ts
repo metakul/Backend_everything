@@ -1,46 +1,104 @@
-import jwt from 'jsonwebtoken';
-import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
-import config from "../../../config.js";
-import { IUserWithDid, IsystemAdmin } from "../../DataTypes/interfaces/IUser.js";
+import jwt, { Secret } from 'jsonwebtoken';
+import config from '../../../config.js';
 import { ErrorEnum } from '../../DataTypes/enums/Error.js';
 
 const JWT_SECRET = config.JWT_SECRET;
+const REFRESH_TOKEN_SECRET = config.REFRESH_TOKEN_SECRET;
 
-export const generateToken = (user: IUserWithDid | IsystemAdmin): string => {
-    if (!JWT_SECRET) {
+// In-memory store for blacklisted tokens (for demonstration purposes)
+const blacklistedTokens = new Set<string>();
+
+interface TokenOptions {
+    expiresIn?: string | number; // Allow customization of expiration
+    type?: 'access' | 'refresh'; // Define token type
+}
+
+interface TokenResponse {
+    token: string;
+    expiresIn: string | number;
+}
+
+interface TokenPairResponse {
+    accessToken: TokenResponse;
+    refreshToken?: TokenResponse;
+}
+
+/**
+ * Generate a JWT token based on user payload and options.
+ */
+export const generateToken = (
+    user: any,
+    options: TokenOptions = { type: 'refresh', expiresIn: '24h' }
+): TokenResponse => {
+    if (!JWT_SECRET || !REFRESH_TOKEN_SECRET) {
         throw ErrorEnum.InvalidJwtSecret();
     }
 
-    let token: string;
+    const secret = options.type === 'refresh' ? REFRESH_TOKEN_SECRET : JWT_SECRET;
+    const expiresIn = options.expiresIn || (options.type === 'refresh' ? '7d' : '24h');
 
-    if ('category' in user && user.category === UserCategory.SUPER_ADMIN) {
-        token = jwt.sign(
-            {
-                name: user.name,
-                category: user.category,
-                email: user.email,
-                permissions: user.permissions
-            },
-            JWT_SECRET as string,
-            { expiresIn: "24h" }
-        );
-    } else if ('accountStatus' in user) {
-        token = jwt.sign(
-            {
-                userId: user.id,
-                category: user.category,
-                email: user.email,
-                address: user.address,
-                permissions: user.permissions,
-                // publicKey: user.publicKey,
-            },
-            JWT_SECRET as string,
-            { expiresIn: "30h" }
-        );
-    } else {
-        // todo add error via error enums
-        throw ErrorEnum.InvalidJwtSecret();
+    const token = jwt.sign(
+        { id: user.id, email: user.email, role: user.role },
+        secret,
+        { expiresIn }
+    );
+
+    return { token, expiresIn };
+};
+
+/**
+ * Generate both access and refresh tokens, if needed.
+ */
+export const generateTokens = (user: any, generateRefreshToken: boolean = false): TokenPairResponse => {
+    const accessToken = generateToken(user, { type: 'access', expiresIn: '24h' });
+
+    let refreshToken: TokenResponse | undefined;
+    if (generateRefreshToken) {
+        refreshToken = generateToken(user, { type: 'refresh', expiresIn: '7d' });
     }
 
-    return token;
+    return {
+        accessToken,
+        refreshToken
+    };
+};
+
+/**
+ * Verify a JWT token.
+ */
+export const verifyToken = (token: string, type: 'access' | 'refresh' = 'access'): any => {
+    try {
+        const secret = type === 'refresh' ? REFRESH_TOKEN_SECRET : JWT_SECRET;
+
+        // Check if the token is blacklisted
+        if (blacklistedTokens.has(token)) {
+            throw ErrorEnum.InvalidJwt(`Blacklisted ${type} token`);
+        }
+
+        return jwt.verify(token, secret as Secret) as any;
+    } catch (error) {
+        throw ErrorEnum.InvalidJwt(`Invalid ${type} token`);
+    }
+};
+
+/**
+ * Utility function to refresh the access token.
+ */
+export const refreshAccessToken = (refreshToken: string): TokenResponse => {
+    const decoded = verifyToken(refreshToken, 'refresh');
+    return generateToken(decoded, { type: 'access', expiresIn: '24h' });
+};
+
+/**
+ * Blacklist an access token.
+ */
+export const blacklistAccessToken = (accessToken: string): void => {
+    blacklistedTokens.add(accessToken);
+};
+
+/**
+ * Blacklist a refresh token.
+ */
+export const blacklistRefreshToken = (refreshToken: string): void => {
+    blacklistedTokens.add(refreshToken);
 };

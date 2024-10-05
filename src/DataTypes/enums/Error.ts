@@ -19,7 +19,17 @@ export const ErrorEnum = {
         message: `Please add a proper email to interact.`,
         details: ""
     }),
-    UserNotFoundwithEmail: (email: IloginUser['email']): ErrorObject => ({
+    MissingMobile: (): ErrorObject => ({
+        statusCode: 400,
+        message: `Please add a proper mobile or email to interact.`,
+        details: ""
+    }),
+    UserNotFoundwithPhone: (phoneNumber: IUser['phoneNumber'] | undefined): ErrorObject => ({
+        statusCode: 404,
+        message: `User with phone '${phoneNumber}' does not exist.`,
+        details: ""
+    }),
+    UserNotFoundwithEmail: (email: IloginUser['email'] | undefined): ErrorObject => ({
         statusCode: 404,
         message: `User with email '${email}' does not exist.`,
         details: ""
@@ -240,4 +250,43 @@ export const IdentifierErrorEnum = {
         details: error
     }),
 }
+
+
+export const CommonError = {
+    OtpServerError: (error?: any): ErrorObject => ({
+        statusCode: 500,
+        message: "unknown error while calling otp server",
+        details: error
+    }),
+    OtpApiError: (error: any): ErrorObject => ({
+        statusCode: error.code,
+        message: error?.error,
+        details: error
+    }),
+    MissingPhoneNumber: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Phone number is required",
+        details: ""
+    }),
+    MissingDeviceId: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Device ID is required",
+        details: ""
+    }),
+    MissingApiKey: (): ErrorObject => ({
+        statusCode: 400,
+        message: "API key is required",
+        details: ""
+    }),
+    MissingOtp: (): ErrorObject => ({
+        statusCode: 400,
+        message: "OTP is required",
+        details: ""
+    }),
+    MissingTransactionId: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Transaction ID is required",
+        details: ""
+    })
+};
 

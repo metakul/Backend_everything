@@ -11,3 +11,8 @@ export enum UserCategory {
     User = 'user',
     SUPER_ADMIN = 'SUPER_ADMIN',
 }
+
+export enum otpPurpose {
+    LOGIN = 'authorisation',
+    RESET_PASSWORD = 'RESET_PASSWORD',
+}
