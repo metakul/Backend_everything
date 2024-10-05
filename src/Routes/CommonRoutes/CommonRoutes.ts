@@ -18,7 +18,7 @@ router.post("/login",
 // get Profile
 router.get("/profile",
     checkJwt,
-    ValidateApiKey,
+    // ValidateApiKey,
     CheckPermission(ReadPermissionControl.can_read_profile),
     checkUserCategoryExists,
     CommonGetController.profile);
