@@ -13,7 +13,7 @@ const app: Express = express();
 app.use(cors({
   origin: '*', // or specify the domain explicitly
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'boundary'],
 }));
 
 // Payload limit

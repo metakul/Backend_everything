@@ -18,12 +18,15 @@ export const cropVideo = async (
   outputDir: string,
   beepAudio: string,
   videoNumber: number,
-  videoDuration: number,
+  // videoDuration: number,
   // videoQuantity: number,
   episode: number,
 ): Promise<void> => {
+  const videoDuration=30
   const startTime = videoNumber * videoDuration;
 
+  console.log("startTime",startTime);
+  
   // Get the total duration of the input video
   return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(inputVideo, (err, metadata) => {
@@ -34,14 +37,18 @@ export const cropVideo = async (
       }
 
       const durationInSeconds = metadata.format.duration;
-      const totalCropTime = 1 * videoDuration;
+      const totalCropTime = videoDuration;
 
+      console.log(totalCropTime,"totalCropTime",durationInSeconds,"durationInSeconds");
+      
       // Ensure the crop does not exceed video length
       if (durationInSeconds && startTime + totalCropTime > durationInSeconds) {
         console.error('Total crop time exceeds video duration.');
         reject('Total crop time exceeds video duration.');
         return;
       }
+      console.log(startTime,"startTime");
+      
 
       // Create an array of promises for each segment
       const cropPromises: Promise<void>[] = [];

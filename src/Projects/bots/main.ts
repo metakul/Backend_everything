@@ -15,7 +15,7 @@ const ensureOutputDirExists = (outputDir: string) => {
 
 // Function to handle the upload process with metadata
 const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retryCount = 0): Promise<void> => {
-  console.log(`Starting upload process for ${mediaType} with VideoNumber:`, config.mediaName);
+  console.log(`Starting upload process for ${mediaType} with VideoNumber:`, config.videoNumber);
 
   try {
     // Crop the video before uploading
@@ -24,7 +24,7 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
       config.outputDir,
       config.beepAudio,
       config.videoNumber,
-      config.videoDuration,
+      // config.videoDuration,
       config.episode
     );
 
@@ -46,7 +46,7 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
     console.log('Upload completed successfully');
 
     // Increment media name for the next upload
-    config.mediaName++;
+    config.videoNumber++;
   } catch (error) {
     console.error(`Error during ${mediaType} upload process:`);
 
@@ -63,7 +63,7 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
 
 // Function to start the bot and handle video uploads
 export const startBot = async (config: any): Promise<void> => {
-  console.log('Starting bot for video upload...',config);
+  // console.log('Starting bot for video upload...',config);
   ensureOutputDirExists(config.outputDir); // Ensure the output directory exists
   await runUploadProcess('VIDEO', config); // Start upload process with config
 };

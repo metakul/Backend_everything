@@ -26,21 +26,62 @@ export const login = async (
     }
 
     const { password,deviceId } = req.body;
-    const user = req.user;
+    const userInfo = req.user;
     const identifier = req.identifier
     try {
-        if (user) {
+        if (userInfo) {
             logWithMessageAndStep(childLogger, "Step 1", "Reading password from Body", "login", JSON.stringify(req.body), "info");
 
             // Compare passwords
-            const isPasswordMatch = await bcrypt.compare(password, user.password);
+            const isPasswordMatch = await bcrypt.compare(password, userInfo.password);
             logWithMessageAndStep(childLogger, "Step 2", "Comparing passwords", "login", JSON.stringify(isPasswordMatch), "debug");
 
             if (!isPasswordMatch) {
-                logWithMessageAndStep(childLogger, "Error Step", "Password mismatch", "login", user.email, "warn");
-                throw ErrorEnum.UserPasswordError(user.email);
+                logWithMessageAndStep(childLogger, "Error Step", "Password mismatch", "login", userInfo.email, "warn");
+                throw ErrorEnum.UserPasswordError(userInfo.password);
             }
 
+            let user
+            if (identifier && identifier.includes('@')) {
+                user = await prisma.superAdmin.findUnique({
+                    where: { email: identifier },
+                    select: {
+                        id: true,
+                        category: true,
+                        email: true,
+                        name: true,
+                        password: true
+                    },
+                });
+    
+                if (!user) {
+                    user = await prisma.users.findUnique({
+                        where: { email: identifier },
+                        select: {
+                            id: true,
+                            phoneNumber: true,
+                            category: true,
+                            address: true,
+                            email: true,
+                            name: true,
+                            password: true
+                        },
+                    });
+                }
+            } else {
+                user = await prisma.users.findUnique({
+                    where: { phoneNumber: identifier },
+                    select: {
+                        id: true,
+                        phoneNumber: true,
+                        category: true,
+                        address: true,
+                        email: true,
+                        name: true,
+                        password: true
+                    },
+                });
+            }
             // let otpData
 
             // if (user && identifier) {
@@ -54,11 +95,11 @@ export const login = async (
 
             // const response = await sendOtpRequest(otpData as OtpRequestData);
 
-            logWithMessageAndStep(childLogger, "Step 3", "OTP SUCCESSFULLY SENT", "login", JSON.stringify(user.email), "debug");
+            logWithMessageAndStep(childLogger, "Step 3", "OTP SUCCESSFULLY SENT", "login", JSON.stringify(user), "debug");
 
             const {accessToken,refreshToken} = generateTokens(user, true);
 
-            res.status(201).json({data: {
+            user && res.status(201).json({data: {
         name: user.name,
         token: {
           accessToken,

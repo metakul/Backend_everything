@@ -234,8 +234,6 @@ export const create_bot = async (
     next: NextFunction
 ) => {
     try {
-        console.log(req);
-        
         // Check if the file was uploaded
         if (!req.file) {
             throw ErrorEnum.MissingFIle();
@@ -293,9 +291,6 @@ export const create_bot = async (
             outputDir: customOutputFilePath,
             beepAudio: `${beepSounds}/beep.mp3`,
         };
-
-        console.log(config);
-
 
         // Create the bot in the database first
         const newBot = await prisma.bot.create({
