@@ -60,3 +60,17 @@ model bot {
   isPaused      Boolean   @default(false)
   nextRun       DateTime? // Optional: Track the next run time
 }
+
+
+model blogs {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  image       String
+  author      String
+  status      String
+  categories  String[]
+  cryptoSymbol String
+  // createdAt   DateTime @default(now())
+  // updatedAt   DateTime @updatedAt
+}

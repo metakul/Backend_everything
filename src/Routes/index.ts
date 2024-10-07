@@ -67,6 +67,11 @@ router.use(
 router.use(
   "/V1",
   CheckPrismaConnection,
+  BlogRoutes
+);
+router.use(
+  "/V1",
+  CheckPrismaConnection,
   BotRoutes
 );
 
