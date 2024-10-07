@@ -47,10 +47,8 @@ model bot {
   userId        String
   filePath      String
   episode       String?
-  mediaName     String?
+  videoNumber     String?
   videoDuration  Int?
-  videoQuantity  Int?
-  videoTocut    Int?
   accessToken    String?
   location      String?
   hashtags      String?

@@ -9,7 +9,6 @@ type CropVideoParams = {
   beepAudio: string;
   videoNumber: number;
   videoDuration: number;
-  videoQuantity: number;
   episode: number;
 };
 
@@ -20,7 +19,7 @@ export const cropVideo = async (
   beepAudio: string,
   videoNumber: number,
   videoDuration: number,
-  videoQuantity: number,
+  // videoQuantity: number,
   episode: number,
 ): Promise<void> => {
   const startTime = videoNumber * videoDuration;
@@ -35,7 +34,7 @@ export const cropVideo = async (
       }
 
       const durationInSeconds = metadata.format.duration;
-      const totalCropTime = videoQuantity * videoDuration;
+      const totalCropTime = 1 * videoDuration;
 
       // Ensure the crop does not exceed video length
       if (durationInSeconds && startTime + totalCropTime > durationInSeconds) {
@@ -46,7 +45,7 @@ export const cropVideo = async (
 
       // Create an array of promises for each segment
       const cropPromises: Promise<void>[] = [];
-      for (let i = 0; i < videoQuantity; i++) {
+      for (let i = 0; i < 1; i++) {
         cropPromises.push(
           createSegment(i, startTime, durationInSeconds as number, inputVideo, outputDir, beepAudio, videoNumber, videoDuration, episode)
         );

@@ -234,6 +234,8 @@ export const create_bot = async (
     next: NextFunction
 ) => {
     try {
+        console.log(req);
+        
         // Check if the file was uploaded
         if (!req.file) {
             throw ErrorEnum.MissingFIle();
@@ -242,10 +244,8 @@ export const create_bot = async (
         const {
             _alias,
             episode,
-            mediaName,
-            // videoDuration,
-            // videoQuantity,
-            // videoTocut,
+            videoNumber,
+            videoDuration,
             accessToken,
             location,
             hashtags,
@@ -253,9 +253,6 @@ export const create_bot = async (
             cronSchedule // New parameter for scheduling
         } = req.body;
 
-        const videoDuration=30
-        const videoQuantity=1
-        const videoTocut=1
 
         // Validate required fields
         if (!_alias) {
@@ -266,8 +263,6 @@ export const create_bot = async (
 
         const userId = user.email as string; // Get user ID, you should update this to get from req.user if needed.
 
-        console.log(user);
-        
         const assetsPath = path.join(__dirname, '../../Projects/bots/assets');
 
         // Prepare directories
@@ -282,16 +277,14 @@ export const create_bot = async (
         const inputFilePath = path.join(inputDir, req.file.filename);
         fs.renameSync(req.file.path, inputFilePath);
 
-        const custoIinputFilePath = `${inputDir}/samay.mp4`;
+        const custoIinputFilePath = `${inputDir}/${req.file.filename}`;
         const customOutputFilePath = `${outputDir}`;
 
         // Prepare the config object
         const config = {
             episode,
-            mediaName,
+            videoNumber,
             videoDuration,
-            videoQuantity,
-            videoTocut,
             accessToken,
             location,
             hashtags,
@@ -311,10 +304,8 @@ export const create_bot = async (
                 userId: userId,
                 filePath: inputFilePath,
                 episode,
-                mediaName,
+                videoNumber,
                 videoDuration,
-                videoQuantity,
-                videoTocut,
                 accessToken,
                 location,
                 hashtags,
@@ -399,10 +390,8 @@ export const update_bot = async (
         const { botId } = req.params;
         const {
             episode,
-            mediaName,
+            videoNumber,
             videoDuration,
-            videoQuantity,
-            videoTocut,
             accessToken,
             location,
             hashtags,
@@ -422,10 +411,8 @@ export const update_bot = async (
         
         // Update fields if provided
         if (episode !== undefined) updatedData.episode = episode;
-        if (mediaName !== undefined) updatedData.mediaName = mediaName;
+        if (videoNumber !== undefined) updatedData.videoNumber = videoNumber;
         if (videoDuration !== undefined) updatedData.videoDuration = videoDuration;
-        if (videoQuantity !== undefined) updatedData.videoQuantity = videoQuantity;
-        if (videoTocut !== undefined) updatedData.videoTocut = videoTocut;
         if (accessToken !== undefined) updatedData.accessToken = accessToken;
         if (location !== undefined) updatedData.location = location;
         if (hashtags !== undefined) updatedData.hashtags = hashtags;

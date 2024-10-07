@@ -23,9 +23,8 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
       config.inputVideo,
       config.outputDir,
       config.beepAudio,
-      config.mediaName,
+      config.videoNumber,
       config.videoDuration,
-      config.videoQuantity,
       config.episode
     );
 
@@ -35,7 +34,7 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
     await startUploadSession(
       config.accessToken,
       config.outputDir,
-      config.mediaName,
+      config.videoNumber,
       mediaType,
       config.caption,
       config.hashtags,

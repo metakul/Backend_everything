@@ -65,7 +65,7 @@ router.use(
   PermissionRoutes
 );
 router.use(
-  "/V1",
+  "/V1/blogs/",
   CheckPrismaConnection,
   BlogRoutes
 );

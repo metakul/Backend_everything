@@ -46,11 +46,10 @@ export const CreateBlog = async (
       );
 
     if (!blogModelValidation) {
-      return next(
+      
         res.status(400).json({
           message: "Invalid details provided.",
         })
-      );
     } else {
       const newBlog = await addBlog(blogModelValidation);
       if (newBlog) {
@@ -58,11 +57,10 @@ export const CreateBlog = async (
           newBlog,
         });
       } else {
-        return next(
+        
           res.status(400).json({
             message: "Error Adding Blog",
           })
-        );
       }
     }
   } catch (error) {
@@ -131,11 +129,9 @@ export const getBlog = async (
     );
     
     if (!blogIdValidation) {
-      return next(
         res.status(400).json({
           message: "Operation failed, invalid details provided.",
         })
-      );
     } else {
         let getBlogs;
         if (req.params.blogId) {
@@ -153,11 +149,10 @@ export const getBlog = async (
       if (getBlogs.length > 0) {
         res.status(200).json(getBlogs);
       } else {
-        return next(
+        
           res.status(404).json({
             message: "No Blogs Found found.",
           })
-        );
       }
     }
   } catch (error) {
@@ -181,12 +176,12 @@ export const updateBlogStatus = async (
     const { status } = req.body;
 
     if (!id || !status) {
-      return res.status(400).json({message: 'ID and status are required'  });
+       res.status(400).json({message: 'ID and status are required'  });
       }
   
     // Validate if the provided status is a valid enum value
     if (!Object.values(BlogsStatusInfo).includes(status)) {
-      return res.status(400).json({ message: 'Invalid status provided' });
+       res.status(400).json({ message: 'Invalid status provided' });
     }
 
     // Find the blog by blogId and update its status
@@ -229,11 +224,10 @@ export const deteleBlog = async (
     );
 
     if (!blogIdValidation) {
-      return next(
+      
         res.status(400).json({
           message: "Operation failed, invalid details provided.",
         })
-      );
     } else {
         const deleteBlogs = await prisma.blogs.delete({
             where: { id: blogIdValidation },
@@ -242,11 +236,10 @@ export const deteleBlog = async (
       if (deleteBlogs) {
         res.status(200).json(deleteBlogs);
       } else {
-        return next(
+        
           res.status(404).json({
             message: "Not found.",
           })
-        );
       }
     }
   } catch (error) {
@@ -272,11 +265,10 @@ export const updateBlog = async (
     );
 
     if (!resUpdateBlogValidation) {
-      return next(
+      
         res.status(400).json({
           message: "Operation failed, invalid details provided.",
         })
-      );
     } else {
         const updatedBlog = await prisma.blogs.update({
             where: { id: resUpdateBlogValidation.blogId },
@@ -295,11 +287,10 @@ export const updateBlog = async (
             data:updatedBlog
         });
       } else {
-        return next(
+        
           res.status(404).json({
             message: "Not found.",
           })
-        );
       }
     }
   } catch (error) {
