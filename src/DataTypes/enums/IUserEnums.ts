@@ -16,3 +16,9 @@ export enum otpPurpose {
     LOGIN = 'authorisation',
     RESET_PASSWORD = 'RESET_PASSWORD',
 }
+
+export enum BlogsStatusInfo {
+    APPROVED = 'approved',
+    PENDING = 'pending',
+    REJECTED = 'rejected'
+  }

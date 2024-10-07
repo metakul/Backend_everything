@@ -5,6 +5,8 @@ import SuperAdminRoutes from './SuperAdminRoutes/SuperAdminRoutes.js';
 import RoleRoutes from './RolePermRoutes/RoleRoutes.js';
 import PermissionRoutes from './RolePermRoutes/PermissionRoutes.js';
 import BotRoutes from './BotRoutes/BotRoutes.js';
+import BlogRoutes from './BlogRoutes/BlogRoutes.js';
+import HardhatRoutes from './ContractRoutes/ContractRoutes.js';
 import handleError from "../Middleware/error.js";
 import { Request, Response, NextFunction } from "express";
 import { MongooseError } from "../DataTypes/enums/Error.js";
@@ -63,9 +65,20 @@ router.use(
   PermissionRoutes
 );
 router.use(
+  "/V1/blogs/",
+  CheckPrismaConnection,
+  BlogRoutes
+);
+router.use(
   "/V1",
   CheckPrismaConnection,
   BotRoutes
+);
+
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  HardhatRoutes
 );
 
 router.use(handleError)
