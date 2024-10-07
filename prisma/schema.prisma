@@ -48,7 +48,7 @@ model bot {
   filePath      String
   episode       String?
   videoNumber     String?
-  videoDuration  Int?
+  videoDuration  String?
   accessToken    String?
   location      String?
   hashtags      String?
