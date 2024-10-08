@@ -38,7 +38,7 @@ export const generateToken = (
     const expiresIn = options.expiresIn || (options.type === 'refresh' ? '7d' : '24h');
 
     const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
+        user,
         secret,
         { expiresIn }
     );
