@@ -10,7 +10,7 @@
     "start": "export NODE_ENV=production && prisma generate && node dist/server.js",
     "docker:build": "sudo docker build -t vc-c3i .",
     "docker:start": "sudo docker run -p 8003:8001 vc-c3i",
-   "build": "npm install --force && (cd src/Projects/Blockchain/hardhat && npm install --force) && if [ $? -eq 0 ]; then prisma generate && npx tsc; else echo 'Installation failed, skipping prisma and tsc'; exit 1; fi",
+   "build": "npm install --force && cd src/Projects/Blockchain/hardhat && npm install --force && npx hardhat compile  && cd .. && cd .. && cd .. && cd .. && prisma generate && npx tsc",
     "heroku:deploy": "npm install && prisma generate"
   },
   "prisma": {
