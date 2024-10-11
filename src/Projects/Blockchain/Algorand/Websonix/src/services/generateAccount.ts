@@ -11,6 +11,7 @@ export const createAlgorandAccount = () => {
     
     return {
       address: `${generatedAccount.addr}`,
+      privateKey: generatedAccount.sk,
       passphrase,
     };
   } catch (error) {

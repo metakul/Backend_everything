@@ -50,7 +50,7 @@ export const UpdateBlogValidation = z.object({
     .nonempty({ message: "Categories are required" }),
   cryptoSymbol: z.string()
     .trim().nonempty({ message: "Crypto symbol is required" }),
-  status: z.enum([BlogsStatusInfo.APPROVED, BlogsStatusInfo.PENDING, BlogsStatusInfo.REJECTED])
+  // status: z.enum([BlogsStatusInfo.APPROVED, BlogsStatusInfo.PENDING, BlogsStatusInfo.REJECTED])
 });
 
 // Update post status validation schema

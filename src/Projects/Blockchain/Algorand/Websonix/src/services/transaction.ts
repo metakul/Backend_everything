@@ -9,19 +9,21 @@ export const sendPaymentTransaction = async (fromAccount: { addr: any; privateKe
     try {
         const suggestedParams = await algodClient.getTransactionParams().do();
         const ptxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-            from: fromAccount.addr,
+            sender: fromAccount.addr,
             suggestedParams,
-            to: toAccountAddress,
+            receiver: toAccountAddress,
             amount,
             note: new Uint8Array(Buffer.from(note)),
         });
 
         const signedTxn = ptxn.signTxn(fromAccount.privateKey);
-        const { txId } = await algodClient.sendRawTransaction(signedTxn).do();
-        const result = await algosdk.waitForConfirmation(algodClient, txId, 4);
+        const data = await algodClient.sendRawTransaction(signedTxn).do();
+        const result = await algosdk.waitForConfirmation(algodClient, data.txid, 4);
 
+        console.log(data);
+        
         const transactionDetails = {
-            txId,
+            data,
             txn: result.txn,
             decodedNote: Buffer.from(result.txn.txn.note).toString(),
         };
@@ -51,7 +53,7 @@ export const createAsset = async (algodClient:any, creatorAccount: { addr: strin
         const suggestedParams = await algodClient.getTransactionParams().do();
         
         const txn = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
-            from: creatorAccount.addr,
+            sender: creatorAccount.addr,
             suggestedParams,
             total: assetDetails.total,
             decimals: assetDetails.decimals,
@@ -66,17 +68,17 @@ export const createAsset = async (algodClient:any, creatorAccount: { addr: strin
         });
 
         const signedTxn = txn.signTxn(creatorAccount.privateKey);
-        const { txId } = await algodClient.sendRawTransaction(signedTxn).do();
-        const result = await algosdk.waitForConfirmation(algodClient, txId, 3);
-
-        const assetIndex = result['asset-index'];
-        console.log(`Asset ID created: ${assetIndex}`);
+        
+        const trx = await algodClient.sendRawTransaction(signedTxn).do();
+       console.log("trx",trx);
+       
+        const result = await algosdk.waitForConfirmation(algodClient, txn.txID.toString(), 3);
+        console.log(result);
 
         // Return asset creation details as JSON
         return {
-            assetId: assetIndex,
-            txId,
-            txn: result.txn,
+            trx,
+            txn: result,
         };
 
     } catch (error) {

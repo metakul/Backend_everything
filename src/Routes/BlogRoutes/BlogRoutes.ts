@@ -25,6 +25,6 @@ router.patch('/updateStatus/:blogId',checkJwt, BlogController.updateBlogStatus);
 
 
 //delete blog
-router.delete("/:blogId",checkJwt, BlogController.deteleBlog);
+router.delete("/:blogId",checkJwt, BlogController.deleteBlog);
 
 export default router;

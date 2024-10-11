@@ -62,8 +62,19 @@ const runUploadProcess = async (mediaType: 'VIDEO' | 'IMAGE', config: any, retry
 };
 
 // Function to start the bot and handle video uploads
+// Function to start the bot and handle video uploads
 export const startBot = async (config: any): Promise<void> => {
-  // console.log('Starting bot for video upload...',config);
   ensureOutputDirExists(config.outputDir); // Ensure the output directory exists
-  await runUploadProcess('VIDEO', config); // Start upload process with config
+
+  // Define the interval (4 hours = 4 * 60 * 60 * 1000 milliseconds)
+  const fourHours = 4 * 60 * 60 * 1000;
+
+  // Start upload process immediately
+  await runUploadProcess('VIDEO', config);
+
+  // Schedule upload process every 4 hours
+  setInterval(async () => {
+    console.log('Starting the scheduled upload process.');
+    await runUploadProcess('VIDEO', config);
+  }, fourHours);
 };

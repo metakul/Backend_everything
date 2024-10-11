@@ -309,3 +309,26 @@ export const BlockchainError = {
     }),
     // Add other specific blockchain-related errors as needed
 };
+export const BlogsError = {
+    InvalidStatusProvided: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Invalid Status Provided",
+        details: "The provided status is not valid."
+    }),
+    InvalidBlogDetails: (blogIdValidation:any): ErrorObject => ({
+        statusCode: 400,
+        message: "Invalid Blog Details",
+        details: blogIdValidation
+    }),
+    BlogNotFound: (): ErrorObject => ({
+        statusCode: 404,
+        message: "Blog Not Found",
+        details: "The specified blog does not exist."
+    }),
+    ErrorAddingBlog: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Error Adding Blog",
+        details: "There was an error while adding the new blog."
+    }),
+    // Add other specific blog-related errors as needed
+};
