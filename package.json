@@ -1,7 +1,7 @@
 {
   "name": "veramo-agent",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -71,7 +71,7 @@
     "zod": "^3.23.8"
   },
   "engines": {
-    "node": "^18.19.1",
-    "npm": "^9.2.0"
+    "node": "18.19.1",
+    "npm": "9.2.0"
   }
 }
