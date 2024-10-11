@@ -1,14 +1,18 @@
 {
-    "compilerOptions": {
-      "preserveConstEnums": true,
-      "strict": true,
-      "target": "esnext",
-      "module": "esnext",
-      "rootDir": "./",
-      "moduleResolution": "node",
-      "esModuleInterop": true,
-      "downlevelIteration": true
-    },
-    "include": ["/src"],
-    "exclude": ["dist"]
-  }
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noImplicitAny": false,  // Add or modify this line
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

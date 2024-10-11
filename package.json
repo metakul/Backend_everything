@@ -7,10 +7,10 @@
   "scripts": {
     "dev": "export NODE_ENV=development && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
     "prod": "export NODE_ENV=production && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
-    "start": "export NODE_ENV=production && npx prisma generate && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
+    "start": "export NODE_ENV=production && npx prisma generate && node dist/server.js",
     "docker:build": "sudo docker build -t vc-c3i .",
     "docker:start": "sudo docker run -p 8003:8001 vc-c3i",
-    "build": "npm install && npx prisma generate",
+    "build": "npm install && npx prisma generate && npx tsc",
     "heroku:deploy": "npm install && npx prisma generate"
   },
   "devDependencies": {
@@ -25,12 +25,12 @@
     "@types/uuid": "^9.0.8",
     "eslint": "^8.56.0",
     "globals": "^15.3.0",
-    "prisma": "^5.14.0",
+    "prisma": "^5.20.0",
     "typescript": "^5.2.2",
     "typescript-eslint": "^7.10.0"
   },
   "dependencies": {
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "^5.20.0",
     "@thirdweb-dev/storage": "^2.0.15",
     "@veramo/core": "^5.1.2",
     "@veramo/credential-eip712": "^5.5.0",
