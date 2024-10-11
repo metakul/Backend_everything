@@ -31,7 +31,10 @@ isDatabaseHealthy();
 
 // Middleware logger
 app.use("/", loggerMiddleware());
-
+//backend Load req
+app.get("/", (req, res) => {
+  res.send("Website is running");
+});
 // Route for handling requests
 app.use("/", router);
 
