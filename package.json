@@ -7,11 +7,14 @@
   "scripts": {
     "dev": "export NODE_ENV=development && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
     "prod": "export NODE_ENV=production && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts",
-    "start": "export NODE_ENV=production && npx prisma generate && node dist/server.js",
+    "start": "export NODE_ENV=production && prisma generate && node dist/server.js",
     "docker:build": "sudo docker build -t vc-c3i .",
     "docker:start": "sudo docker run -p 8003:8001 vc-c3i",
-    "build": "npm install --force && cd src/Projects/Blockchain/hardhat && npm install --force && npx prisma generate && npx tsc",
-    "heroku:deploy": "npm install && npx prisma generate"
+   "build": "npm install --force && (cd src/Projects/Blockchain/hardhat && npm install --force && npx hardhat compile) && prisma generate && npx tsc",
+    "heroku:deploy": "npm install && prisma generate"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
@@ -71,8 +74,5 @@
   "engines": {
     "node": "18.19.1",
     "npm": "9.2.0"
-  },
-  "prisma": {
-    "schema": "prisma/schema.prisma"
   }
 }
