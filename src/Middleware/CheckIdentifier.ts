@@ -4,7 +4,10 @@ import winston from 'winston';
 import { logWithMessageAndStep } from '../Helpers/Logger/logger.js';
 
  export interface RequestWithIdentifier extends Request {
-     identifier?: string
+     identifier?: string;
+     body: any;
+     method: any;
+     query: any;
 }
 
 export const checkIdentifier = async (

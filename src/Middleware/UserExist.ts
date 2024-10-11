@@ -12,6 +12,9 @@ import { logWithMessageAndStep } from '../Helpers/Logger/logger.js';
 export interface LoginUserRequest extends Request {
   user?: IUserWithDid | IsystemAdmin;
   identifier?: string; 
+  body:any;
+  method:any;
+  query:any;
 }
 
 export const checkUserExists = async (

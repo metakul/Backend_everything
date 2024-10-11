@@ -10,7 +10,9 @@ const JWT_SECRET = config.JWT_SECRET;
 
 export interface RequestWithUser extends Request {
     user?: IUser;
-    email?: string
+    email?: string;
+    headers:any;
+    params:any;
 }
 
 export default async function checkJwt(
