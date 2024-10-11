@@ -51,7 +51,7 @@
     "dotenv": "^16.4.5",
     "eth-crypto": "^2.6.0",
     "ethr-did-resolver": "^7.0.2",
-    "express": "^4.18.2",
+    "express": "^4.21.1",
     "fluent-ffmpeg": "^2.1.3",
     "ipfs-infura": "^1.1.9",
     "joi": "^17.13.3",
