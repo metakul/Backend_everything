@@ -14,6 +14,7 @@ export interface LoginUserRequest extends Request {
   identifier?: string; 
   body:any;
   method:any;
+  cookies:any;
   query:any;
 }
 
