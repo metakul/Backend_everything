@@ -21,6 +21,8 @@ export const BlogValidationService = {
   async validateUpdateBlog(data: IUpadateBlog) {
 
     const parsed = UpdateBlogValidation.safeParse(data);
+    console.log("parsed",parsed);
+    
     if (parsed.success) {
       
       return parsed.data; // Return the validated and parsed data

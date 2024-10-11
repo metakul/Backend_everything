@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { IUpadateBlog, Iblog } from "../../DataTypes/interfaces/IBlog.js";
-import { fetchCryptoData  } from "../../Utils/scripts/AxiosCall.js";
+import { fetchCryptoData } from "../../Utils/scripts/AxiosCall.js";
 import { prisma } from "../../db/client.js";
 import { BlogsStatusInfo } from "../../DataTypes/enums/IUserEnums.js";
 import { BlogIdValidationService, BlogValidationService, CryptoIdValidationService } from "../../Validation/BlogValidation.js";
+import { RequestWithUser } from "../../Middleware/checkJwt.js";
+import { BlogsError } from "../../DataTypes/enums/Error.js";
 
 /**
  * add new Blog
@@ -19,13 +21,14 @@ const addBlog = async (blogModelValidation: Iblog) => {
           author: blogModelValidation.author,
           categories: blogModelValidation.categories,
           cryptoSymbol: blogModelValidation.cryptoSymbol,
-          status:BlogsStatusInfo.PENDING
+          status: BlogsStatusInfo.PENDING
         },
       });
-      return blog;
+    return blog;
 
   } catch (error) {
     console.log(error);
+    throw BlogsError.ErrorAddingBlog();
   }
 };
 
@@ -36,7 +39,7 @@ const addBlog = async (blogModelValidation: Iblog) => {
  * @param next
  */
 export const CreateBlog = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -46,25 +49,13 @@ export const CreateBlog = async (
       );
 
     if (!blogModelValidation) {
-      
-        res.status(400).json({
-          message: "Invalid details provided.",
-        })
+      throw BlogsError.InvalidBlogDetails(blogModelValidation);
     } else {
       const newBlog = await addBlog(blogModelValidation);
-      if (newBlog) {
-        res.status(201).json({
-          newBlog,
-        });
-      } else {
-        
-          res.status(400).json({
-            message: "Error Adding Blog",
-          })
-      }
+      res.status(201).json(
+        newBlog);
     }
   } catch (error) {
-    
     next(error);
   }
 };
@@ -83,15 +74,13 @@ export const getAllBlogsByStatus = async (
   try {
     const { status } = req.query;
     
-    if (!status || (status !== BlogsStatusInfo.APPROVED && status !==BlogsStatusInfo.PENDING)) {
-      return res.status(400).json({ message: 'Invalid status provided' });
+    if (!status || (status !== BlogsStatusInfo.APPROVED && status !== BlogsStatusInfo.PENDING)) {
+      throw BlogsError.InvalidStatusProvided();
     }
     
     const pageSize = parseInt(req.query.pagesize as string, 10) || 10;
     const page = parseInt(req.query.page as string, 10) || 1;
     const skip = (page - 1) * pageSize;
-
-    const query = { status: status };
 
     const blogs = await prisma.blogs.findMany({
         where: {
@@ -104,13 +93,12 @@ export const getAllBlogsByStatus = async (
     if (blogs.length > 0) {
       res.status(200).json(blogs);
     } else {
-      return res.status(404).json({ message: 'No blogs found with the specified status' });
+      throw BlogsError.BlogNotFound();
     }
   } catch (error) {
     next(error);
   }
 };
-
 
 /**
  * get one blog
@@ -129,30 +117,18 @@ export const getBlog = async (
     );
     
     if (!blogIdValidation) {
-        res.status(400).json({
-          message: "Operation failed, invalid details provided.",
-        })
+      throw BlogsError.InvalidBlogDetails(blogIdValidation);
     } else {
-        let getBlogs;
-        if (req.params.blogId) {
-          // Fetch blogs by blogId
-          getBlogs = await prisma.blogs.findMany({
-            where: {
-              id:  req.params.blogId, // Assuming blogId is a numeric ID, adjust as per your schema
-            },
-          });
-        } else {
-          // Fetch all blogs
-          getBlogs = await prisma.blogs.findMany();
-        }
+      const getBlogs = await prisma.blogs.findMany({
+        where: {
+          id: req.params.blogId,
+        },
+      });
 
       if (getBlogs.length > 0) {
         res.status(200).json(getBlogs);
       } else {
-        
-          res.status(404).json({
-            message: "No Blogs Found found.",
-          })
+        throw BlogsError.BlogNotFound();
       }
     }
   } catch (error) {
@@ -167,40 +143,41 @@ export const getBlog = async (
  * @param next
  */
 export const updateBlogStatus = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { id } = req.params;
+    const { blogId } = req.params;
     const { status } = req.body;
 
-    if (!id || !status) {
-       res.status(400).json({message: 'ID and status are required'  });
-      }
+    if (!blogId || !status) {
+      throw BlogsError.InvalidBlogDetails(blogId);
+    }
   
-    // Validate if the provided status is a valid enum value
     if (!Object.values(BlogsStatusInfo).includes(status)) {
-       res.status(400).json({ message: 'Invalid status provided' });
+      throw BlogsError.InvalidStatusProvided();
     }
 
-    // Find the blog by blogId and update its status
     const updatedBlog = await prisma.blogs.updateMany({
         where: {
-          id,
+          id:blogId,
         },
         data: {
           status,
         },
       });
 
-    if (updatedBlog.count > 0) {
-      res.status(200).json({
-        data:updatedBlog,
-        message:`Blog status updated to ${status}`
-    });
+      if (updatedBlog.count > 0) {
+        // Retrieve the updated blog data
+        const updatedBlogData = await prisma.blogs.findUnique({
+          where: {
+            id: blogId,
+          },
+        });
+        res.status(200).json(updatedBlogData);
     } else {
-      res.status(404).json({ message: 'Blog not found' });
+      throw BlogsError.BlogNotFound();
     }
   } catch (error) {
     next(error);
@@ -213,7 +190,7 @@ export const updateBlogStatus = async (
  * @param res
  * @param next
  */
-export const deteleBlog = async (
+export const deleteBlog = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -224,26 +201,19 @@ export const deteleBlog = async (
     );
 
     if (!blogIdValidation) {
-      
-        res.status(400).json({
-          message: "Operation failed, invalid details provided.",
-        })
+      throw BlogsError.InvalidBlogDetails(blogIdValidation);
     } else {
-        const deleteBlogs = await prisma.blogs.delete({
-            where: { id: blogIdValidation },
-          });
-          
+      const deleteBlogs = await prisma.blogs.delete({
+          where: { id: blogIdValidation },
+        });
+        
       if (deleteBlogs) {
         res.status(200).json(deleteBlogs);
       } else {
-        
-          res.status(404).json({
-            message: "Not found.",
-          })
+        throw BlogsError.BlogNotFound();
       }
     }
   } catch (error) {
-   
     next(error);
   }
 };
@@ -255,7 +225,7 @@ export const deteleBlog = async (
  * @param next
  */
 export const updateBlog = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
@@ -264,37 +234,27 @@ export const updateBlog = async (
       req.body
     );
 
-    if (!resUpdateBlogValidation) {
-      
-        res.status(400).json({
-          message: "Operation failed, invalid details provided.",
-        })
-    } else {
-        const updatedBlog = await prisma.blogs.update({
-            where: { id: resUpdateBlogValidation.blogId },
-            data: {
-              title: resUpdateBlogValidation.title,
-              description: resUpdateBlogValidation.description,
-              image: resUpdateBlogValidation.image,
-              author: resUpdateBlogValidation.author,
-              categories: resUpdateBlogValidation.categories,
-              cryptoSymbol: resUpdateBlogValidation.cryptoSymbol,
-            },
-          });
+   
+      const updatedBlog = await prisma.blogs.update({
+          where: { id: resUpdateBlogValidation.blogId },
+          data: {
+            title: resUpdateBlogValidation.title,
+            description: resUpdateBlogValidation.description,
+            image: resUpdateBlogValidation.image,
+            author: resUpdateBlogValidation.author,
+            categories: resUpdateBlogValidation.categories,
+            cryptoSymbol: resUpdateBlogValidation.cryptoSymbol,
+          },
+        });
 
       if (updatedBlog) {
-        res.status(200).json({
-            data:updatedBlog
-        });
+        res.status(200).json(
+            updatedBlog
+        );
       } else {
-        
-          res.status(404).json({
-            message: "Not found.",
-          })
+        throw BlogsError.BlogNotFound();
       }
-    }
   } catch (error) {
-   
     next(error);
   }
 };
@@ -314,14 +274,18 @@ export const getCryptoInfo = async (
     const blogIdValidation = await CryptoIdValidationService.validateCryptoId(
       req.params.cryptoId
     );
-   const cryptoData= await fetchCryptoData(blogIdValidation)
 
-     res.status(200).json({
-      data:cryptoData
-    });
+    if (!blogIdValidation) {
+      throw BlogsError.InvalidBlogDetails(blogIdValidation);
+    } else
+    {
+
+      const cryptoData = await fetchCryptoData(blogIdValidation);
+      
+      res.status(200).json(cryptoData);
+    }
 
   } catch (error) {
-   
     next(error);
   }
 };

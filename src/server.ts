@@ -12,7 +12,7 @@ const app: Express = express();
 // CORS configuration
 app.use(cors({
   origin: '*', // or specify the domain explicitly
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'boundary'],
 }));
 

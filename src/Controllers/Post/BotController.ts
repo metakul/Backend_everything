@@ -144,11 +144,9 @@ export const register = async (
         logWithMessageAndStep(childLogger, "Step 7", "Sending data to Prisma DB for user registration", "register", JSON.stringify(userModelValidation), "info");
 
         await addUser(userModelValidation, childLogger).then((newUser) => {
-            res.status(201).json({
-                message: "User Registered Successfully",
-                data: newUser,
-                statusCode: 200
-            });
+            res.status(201).json(
+                newUser,
+               );
         }).catch((error) => {
             logWithMessageAndStep(childLogger, "Error Register", "Error while Saving User Inside AddUser Function", "register", JSON.stringify(error), "error");
             throw ErrorEnum.InternalserverError(error)
@@ -203,11 +201,9 @@ export const updateUser = async (
             ).then((updatedUser) => {
                 logWithMessageAndStep(childLogger, "Step 8", "Sending Updated Data to response", "updateUser", JSON.stringify(userModelValidation), "info");
 
-                res.status(200).json({
-                    message: "User Updated SuccessFully",
-                    data: updatedUser,
-                    statusCode: 201
-                });
+                res.status(200).json(
+                    updatedUser,
+                    );
 
             }).catch((error) => {
                 logWithMessageAndStep(childLogger, "Error Step", "Error Sending updated Response", "updateUser", JSON.stringify(error), "error");
@@ -310,27 +306,13 @@ export const create_bot = async (
         });
 
         // Respond early before the cron job or bot starts
-        res.status(201).json({
-            success: true,
-            data: newBot,
-            message: cronSchedule
-                ? 'Bot created and scheduled successfully.'
-                : 'Bot created and started immediately.',
-        });
+        res.status(201).json(
+             newBot,
+          );
 
         // After responding, start the cron job or run the bot immediately
-        let job;
-        if (cronSchedule) {
-            job = cron.schedule(cronSchedule, () => {
-                startBot(config); // Start bot based on config
-            });
-            job.start();
-
-            // Store the job in memory if it's scheduled
-            scheduledJobs[newBot.id] = job;
-        } else {
+      
             await startBot(config); // Start immediately if no schedule
-        }
     } catch (error) {
         console.log(error);
         next(error); // Pass the error to the error handler
@@ -365,11 +347,9 @@ export const get_bots = async (
         }
 
         // Respond with the retrieved bots
-        res.status(200).json({
-            success: true,
-            data: bots,
-            message: 'Bots retrieved successfully.'
-        });
+        res.status(200).json(
+             bots,
+         );
     } catch (error) {
         next(error); // Pass the error to the error handler middleware
     }
@@ -440,11 +420,8 @@ export const update_bot = async (
             data: updatedData,
         });
 
-        res.status(200).json({
-            success: true,
-            data: updatedBot,
-            message: 'Bot updated successfully.',
-        });
+        res.status(200).json(
+             updatedBot);
     } catch (error) {
         next(error);
     }
@@ -473,11 +450,9 @@ export const pause_bot = async (
             data: { status: 'paused', isPaused: true },
         });
 
-        res.status(200).json({
-            success: true,
-            data: updatedBot,
-            message: 'Bot paused successfully.',
-        });
+        res.status(200).json(
+           updatedBot,
+          );
     } catch (error) {
         next(error);
     }
@@ -504,11 +479,9 @@ export const resume_bot = async (
             data: { status: 'running', isPaused: false },
         });
 
-        res.status(200).json({
-            success: true,
-            data: updatedBot,
-            message: 'Bot resumed successfully.',
-        });
+        res.status(200).json(
+            updatedBot,
+            );
     } catch (error) {
         next(error);
     }
