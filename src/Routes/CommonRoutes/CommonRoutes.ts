@@ -1,7 +1,7 @@
 import express from "express";
 import { checkUserExists } from "../../Middleware/UserExist.js";
 import { checkUserCategoryExists } from "../../Middleware/IfUserCategoryExist.js";
-import { ValidateApiKey } from "../../Middleware/ValidateApiKey.js";
+// import { ValidateApiKey } from "../../Middleware/ValidateApiKey.js";
 import CheckPermission from "../../Middleware/CheckPermission.js";
 import { ReadPermissionControl } from "../../DataTypes/rbac/permission.js";
 import checkJwt from "../../Middleware/checkJwt.js";

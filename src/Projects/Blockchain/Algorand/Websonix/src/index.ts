@@ -1,7 +1,7 @@
 import { sendPaymentTransaction, createAsset } from './services/transaction';
 import { createAlgodClient } from './services/algodClient';
 import { checkBalance } from './services/checkBalance';
-import mockData from "./mockData/mockData.json";
+import mockData from "./mockData/mockData";
 import { fromAccount, toAccount } from './mockData/accountDetails'; // Import saved accounts
 const algodClient = createAlgodClient();
 

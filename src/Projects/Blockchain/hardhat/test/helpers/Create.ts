@@ -4,6 +4,14 @@ import { SaleDeedType } from "../DataTypes/DataTypes";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 const randomLocation = ["Kanpur", "Delhi", "Mumbai", "Bangalore", "Chennai"][Math.floor(Math.random() * 5)]; // Random location
 
+interface Owner {
+    executantPublicKey: AddressLike;
+    aadhaarHash: string;
+    uniquePropertyCardIds: string;
+    isApprovedForPOA: boolean;
+    POAAddress: string;
+
+  }
 export function createRandomProperty(managerAddress: any, ownerNeeded: boolean = true) {
 
     const propertyId = keccak256(toUtf8Bytes(`unique_property_id_${Math.random()}`)); // Randomized property ID
@@ -133,7 +141,7 @@ export function createRandomEncumbranceId() {
 
 // Function to add at least 3 random owners to propertyOwnerInfo
 export function addRandomOwners(managerAddress: AddressLike) {
-    const owners = [];
+    const owners:Owner[] = [];
 
     // Add the manager's address as the first owner
     owners.push(createRandomOwner(managerAddress));
