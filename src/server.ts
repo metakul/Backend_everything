@@ -39,7 +39,6 @@ app.get("/", (req, res) => {
 app.use("/", router);
 
 // Start the server
-const IP = "0.0.0.0";
-app.listen(PORT as number, IP, () => {
-  console.log(`Server is running on http://${IP}:${PORT}`);
+app.listen(process.env.PORT || 3000, function(){
+  console.log("Express server listening on port %d in %s mode", app.settings.env);
 });
