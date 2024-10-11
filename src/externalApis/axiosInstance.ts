@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
-import config from '../../config.js';
+import config from '../config.js';
 
 export const otpAxiosInstance: AxiosInstance = axios.create({
     baseURL: config.OTP_API_URL,

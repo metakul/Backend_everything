@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../db/client.js';
 import { ErrorEnum } from '../DataTypes/enums/Error.js';
-import config from '../../config.js';
+import config from '../config.js';
 import { UserCategory } from '../DataTypes/enums/IUserEnums.js';
 import winston, { child } from 'winston';
 import { logWithMessageAndStep } from '../Helpers/Logger/logger.js';

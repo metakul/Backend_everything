@@ -1,5 +1,5 @@
 import { CommonError, ErrorEnum } from '../DataTypes/enums/Error.js';
-import config from '../../config.js';
+import config from '../config.js';
 import { formatOtpResponse, otpAxiosInstance } from './axiosInstance.js';
 // Ensure proper configuration
 const otpApiUrl = config.OTP_API_URL;

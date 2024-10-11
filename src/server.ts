@@ -1,12 +1,10 @@
 import express, { Express } from 'express';
 import cors from 'cors';
 import router from './Routes/index.js';
-import config from "../config.js";
 import { loggerMiddleware } from './Helpers/Logger/logger.js';
 import { isDatabaseHealthy } from './db/client.js';
 import bodyParser from 'body-parser';
 
-const PORT = config.PORT;
 const app: Express = express();
 
 // CORS configuration

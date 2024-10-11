@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { ErrorEnum } from '../DataTypes/enums/Error.js';
-import config from '../../config.js';
+import config from '../config.js';
 import { logWithMessageAndStep } from '../Helpers/Logger/logger.js';
 import winston from 'winston';
 import { IUser } from '../DataTypes/interfaces/IUser.js';

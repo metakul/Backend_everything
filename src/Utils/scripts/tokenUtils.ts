@@ -1,5 +1,5 @@
 import jwt, { Secret } from 'jsonwebtoken';
-import config from '../../../config.js';
+import config from '../../config.js';
 import { ErrorEnum } from '../../DataTypes/enums/Error.js';
 
 const JWT_SECRET = config.JWT_SECRET;
