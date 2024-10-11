@@ -14,7 +14,7 @@
     "heroku:deploy": "npm install && prisma generate"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "./src/prisma/schema.prisma"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
@@ -56,7 +56,6 @@
     "ethr-did-resolver": "^7.0.2",
     "express": "^4.21.1",
     "fluent-ffmpeg": "^2.1.3",
-    "hardhat": "^2.22.13",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^3.1.2",
     "mongoose": "^7.6.3",
