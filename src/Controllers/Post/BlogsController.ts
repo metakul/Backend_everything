@@ -61,7 +61,7 @@ export const CreateBlog = async (
 };
 
 /**
- * Get all blogs based on status
+ * Get all blogs based on status, sorted by the latest update
  * @param req
  * @param res
  * @param next
@@ -73,22 +73,28 @@ export const getAllBlogsByStatus = async (
 ) => {
   try {
     const { status } = req.query;
-    
+
+    // Validate the status query parameter
     if (!status || (status !== BlogsStatusInfo.APPROVED && status !== BlogsStatusInfo.PENDING)) {
       throw BlogsError.InvalidStatusProvided();
     }
-    
+
+    // Pagination parameters
     const pageSize = parseInt(req.query.pagesize as string, 10) || 10;
     const page = parseInt(req.query.page as string, 10) || 1;
     const skip = (page - 1) * pageSize;
 
+    // Query the blogs, sorted by 'updatedAt' in descending order
     const blogs = await prisma.blogs.findMany({
-        where: {
-          status: status || BlogsStatusInfo.APPROVED,
-        },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      });
+      where: {
+        status: status || BlogsStatusInfo.APPROVED, // Default to APPROVED if status is not provided
+      },
+      skip: skip,
+      take: pageSize,
+      orderBy: {
+        updatedAt: 'desc', // Sort by latest updates first
+      },
+    });
 
     if (blogs.length > 0) {
       res.status(200).json(blogs);
@@ -99,6 +105,7 @@ export const getAllBlogsByStatus = async (
     next(error);
   }
 };
+
 
 /**
  * get one blog
