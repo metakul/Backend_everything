@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../../db/client.js";
-import { getVerifiableCredentialForSDR } from "../../Projects/veramo/createSDRreq.js";
-import { listIdentifiers } from "../../Projects/veramo/list-identifiers.js";
 import { ErrorEnum } from "../../DataTypes/enums/Error.js";
 import { accountStatus } from "../../DataTypes/enums/IUserEnums.js";
 

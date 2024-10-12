@@ -14,13 +14,16 @@
     "hardhat": "^2.22.10",
     "hardhat-gas-reporter": "^1.0.10",
     "solidity-coverage": "^0.8.13",
-    "typechain": "^8.3.2"
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@openzeppelin/contracts": "^5.0.2",
     "@types/chai": "^4.3.19",
     "@types/mocha": "^10.0.9",
+    "dotenv": "^16.4.5",
     "ethers": "^6.13.2"
   }
 }
