@@ -36,7 +36,8 @@ app.get("/", (req, res) => {
 // Route for handling requests
 app.use("/", router);
 
+const PORT=process.env.PORT || 3000
 // Start the server
-app.listen(process.env.PORT || 3000, function(){
-  console.log("Express server listening on port %d in %s mode", app.settings.env);
+app.listen(PORT, function(){
+  console.log(`Express server listening on port ${PORT} in localhost`);
 });
