@@ -10,7 +10,7 @@
     "start": "export NODE_ENV=production && prisma generate && node dist/server.js",
     "docker:build": "sudo docker build -t vc-c3i .",
     "docker:start": "sudo docker run -p 8003:8001 vc-c3i",
-    "build": "npm install --force && cd src/Projects/Blockchain/hardhat && npm install --force && npx hardhat compile  && cd .. && cd .. && cd .. && cd .. && prisma generate && npx tsc  && sudo apt install ffmpeg && copyfiles -u 1 'src/Projects/bots/beep.mp3' dist/",
+    "build": "npm install --force && cd src/Projects/Blockchain/hardhat && npm install --force && npx hardhat compile  && cd .. && cd .. && cd .. && cd .. && prisma generate && npx tsc  && apt install ffmpeg && copyfiles -u 1 'src/Projects/bots/beep.mp3' dist/",
     "heroku:deploy": "npm install && prisma generate"
   },
   "prisma": {
