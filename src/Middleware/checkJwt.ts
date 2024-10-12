@@ -14,7 +14,7 @@ export interface RequestWithUser extends Request {
     headers:any;
     params:any;
     body:any;
-    file :any;
+    file?:any;
 }
 
 export default async function checkJwt(

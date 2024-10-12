@@ -10,7 +10,7 @@
     "start": "export NODE_ENV=production && prisma generate && node dist/server.js",
     "docker:build": "sudo docker build -t vc-c3i .",
     "docker:start": "sudo docker run -p 8003:8001 vc-c3i",
-    "build": "npm install --force && cd src/Projects/Blockchain/hardhat && npm install --force && npx hardhat compile  && cd .. && cd .. && cd .. && cd .. && prisma generate && npx tsc",
+    "build": "npm install --force && cd src/Projects/Blockchain/hardhat && npm install --force && npx hardhat compile  && cd .. && cd .. && cd .. && cd .. && prisma generate && npx tsc  && copyfiles -u 1 'src/Projects/bots/beep.mp3' dist/",
     "heroku:deploy": "npm install && prisma generate"
   },
   "prisma": {
@@ -26,6 +26,7 @@
     "@types/multer": "^1.4.12",
     "@types/node-cron": "^3.0.11",
     "@types/uuid": "^9.0.8",
+    "copyfiles": "^2.4.1",
     "eslint": "^8.56.0",
     "globals": "^15.3.0",
     "prisma": "^5.20.0",
@@ -70,10 +71,5 @@
     "winston": "^3.13.0",
     "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.23.8"
-  },
-  "engines": {
-    "node": "18.19.1",
-    "npm": "9.2.0",
-    "npx": "9.2.0"
   }
 }

@@ -258,11 +258,12 @@ export const create_bot = async (
         const userId = user.email as string; // Get user ID, you should update this to get from req.user if needed.
 
         const assetsPath = path.join(__dirname, '../../Projects/bots/assets');
+        const beepPath = path.join(__dirname, '../../Projects/bots');
 
         // Prepare directories
         const inputDir = path.join(assetsPath,  'input');
         const outputDir = path.join(assetsPath,  'output');
-        const beepSounds = path.join(assetsPath);
+        const beepSounds = path.join(beepPath);
 
         fs.mkdirSync(inputDir, { recursive: true });
         fs.mkdirSync(outputDir, { recursive: true });
