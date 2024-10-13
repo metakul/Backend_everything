@@ -36,24 +36,19 @@ export const cropVideo = async (
       }
 
       const durationInSeconds = metadata.format.duration;
-      const totalCropTime = videoDuration;
-
-      console.log(totalCropTime,"totalCropTime",durationInSeconds,"durationInSeconds");
       
       // Ensure the crop does not exceed video length
       if (durationInSeconds && startTime > durationInSeconds) {
         console.error('Total crop time exceeds video duration.');
         reject('Total crop time exceeds video duration.');
         return;
-      }
-      console.log(startTime,"startTime");
-      
+      }      
 
       // Create an array of promises for each segment
       const cropPromises: Promise<void>[] = [];
       for (let i = 0; i < 1; i++) {
         cropPromises.push(
-          createSegment(i, startTime, durationInSeconds as number, inputVideo, outputDir, beepAudio, videoNumber, videoDuration, episode)
+          createSegment(i, startTime, inputVideo, outputDir, beepAudio, videoNumber, videoDuration, episode)
         );
       }
 
@@ -75,7 +70,6 @@ export const cropVideo = async (
 const createSegment = (
   i: number,
   startTime: number,
-  durationInSeconds: number,
   inputVideo: string,
   outputDir: string,
   beepAudio: string,
@@ -83,10 +77,13 @@ const createSegment = (
   videoDuration: number,
   episode: number
 ): Promise<void> => {
-  const segmentEndTime = Math.min(startTime + videoDuration, durationInSeconds);
+  const segmentEndTime = Math.min(+startTime + +videoDuration);
   const outputFilename = path.join(outputDir, `${videoNumber}.mp4`);
   const previousFilename = path.join(outputDir, `${videoNumber - 1}.mp4`);
 
+  console.log(startTime,"startTime");
+  console.log("segmentEndTime",segmentEndTime);
+  
   const text = `Ep ${episode} Part ${videoNumber}`;
 
   return new Promise((resolve, reject) => {
