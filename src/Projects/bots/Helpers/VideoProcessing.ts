@@ -41,7 +41,7 @@ export const cropVideo = async (
       console.log(totalCropTime,"totalCropTime",durationInSeconds,"durationInSeconds");
       
       // Ensure the crop does not exceed video length
-      if (durationInSeconds && startTime + totalCropTime > durationInSeconds) {
+      if (durationInSeconds && startTime > durationInSeconds) {
         console.error('Total crop time exceeds video duration.');
         reject('Total crop time exceeds video duration.');
         return;
