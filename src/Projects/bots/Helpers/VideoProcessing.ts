@@ -18,11 +18,10 @@ export const cropVideo = async (
   outputDir: string,
   beepAudio: string,
   videoNumber: number,
-  // videoDuration: number,
+  videoDuration: number,
   // videoQuantity: number,
   episode: number,
 ): Promise<void> => {
-  const videoDuration=30
   const startTime = videoNumber * videoDuration;
 
   console.log("startTime",startTime);
@@ -84,8 +83,7 @@ const createSegment = (
   videoDuration: number,
   episode: number
 ): Promise<void> => {
-  const segmentStartTime = startTime + i * videoDuration;
-  const segmentEndTime = Math.min(segmentStartTime + videoDuration, durationInSeconds);
+  const segmentEndTime = Math.min(startTime + videoDuration, durationInSeconds);
   const outputFilename = path.join(outputDir, `${videoNumber}.mp4`);
   const previousFilename = path.join(outputDir, `${videoNumber - 1}.mp4`);
 
@@ -93,7 +91,7 @@ const createSegment = (
 
   return new Promise((resolve, reject) => {
     ffmpeg(inputVideo)
-      .inputOptions(['-ss', segmentStartTime.toString(), '-to', segmentEndTime.toString()])
+      .inputOptions(['-ss', startTime.toString(), '-to', segmentEndTime.toString()])
       .input(beepAudio) // Add the beep audio input
       .videoCodec('libx265') // H.265 codec for better compression
       .audioCodec('aac')
