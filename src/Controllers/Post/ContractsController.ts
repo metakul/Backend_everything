@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/Controllers/Post/BotController.ts
+// src/Controllers/Post/ContractController.ts
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -12,6 +12,7 @@ import { BlockchainError } from '../../DataTypes/enums/Error.js';
 import winston from "winston";
 import { logWithMessageAndStep } from "../../Helpers/Logger/logger.js"; // Import your logging function
 import fs from "fs"
+import { prisma } from '../../db/client.js';
 
 // For ES modules: define __dirname manually
 const __filename = fileURLToPath(import.meta.url);
@@ -61,10 +62,10 @@ export const testContract = async (req: Request, res: Response, next: NextFuncti
         }
 
 
-        
+
     } catch (error) {
         console.log(error);
-        
+
         return next(error);
     }
 };
@@ -81,8 +82,8 @@ export const deployContract = async (req: Request, res: Response, next: NextFunc
     const { contractName } = req.body;
 
     // Validate input for contractName, rpcEndpoint, and privateKey
-    if (!contractName ) {
-        return next(BlockchainError.MissingContractNameOrPrivateKey()); 
+    if (!contractName) {
+        return next(BlockchainError.MissingContractNameOrPrivateKey());
     }
 
     try {
@@ -131,7 +132,7 @@ export const compileContract = async (req: Request, res: Response, next: NextFun
     const { contractName } = req.body;
 
     // Validate input for contractName
-    if (!contractName ) {
+    if (!contractName) {
         return next(BlockchainError.MissingContractNameOrPrivateKey()); // Using your BlockchainError structure
     }
 
@@ -228,7 +229,7 @@ export const getContracts = async (req: Request, res: Response, next: NextFuncti
 
         logWithMessageAndStep(childLogger, "Step 2", "Compiled contracts successfully", "compileContract", "Contracts listed", "info");
 
-        return res.status(200).json({ success: true, contracts})
+        return res.status(200).json({ success: true, contracts })
     } catch (error) {
         logWithMessageAndStep(childLogger, "Error Step", "Error compiling contracts", "compileContract", JSON.stringify(error), "error");
         next(error);
@@ -315,5 +316,86 @@ export const getContractByName = async (req: Request, res: Response, next: NextF
     } catch (error) {
         logWithMessageAndStep(childLogger, "Error Step", "Error fetching contract details", "getContractByName", JSON.stringify(error), "error");
         next(error);
+    }
+};
+
+
+// Controller to save user-deployed contract details
+
+export const saveDeployedContract = async (req: Request, res: Response, next: NextFunction) => {
+    const childLogger = (req as any).childLogger as winston.Logger;
+
+    if (!childLogger) {
+        return next(new Error('Internal Server Error'));
+    }
+
+    const { contractName, deployedAddress, walletAddress } = req.body;
+
+    // Validate input
+    if (!contractName || !deployedAddress || !walletAddress) {
+        return res.status(400).json({ success: false, message: 'Missing required fields: contractName, deployedAddress, or walletAddress' });
+    }
+
+    try {
+        logWithMessageAndStep(childLogger, 'Step 1', 'Saving deployed contract details', 'saveDeployedContract', JSON.stringify(req.body), 'info');
+
+        // Save contract to the database using Prisma
+        const savedContract = await prisma.deployedContract.create({
+            data: {
+                contractName,
+                deployedAddress,
+                walletAddress,
+            },
+        });
+
+        logWithMessageAndStep(childLogger, 'Step 2', 'Contract saved successfully', 'saveDeployedContract', JSON.stringify(savedContract), 'info');
+
+        // Return a successful response
+        return res.status(201).json({ success: true, contract: savedContract });
+    } catch (error) {
+        logWithMessageAndStep(childLogger, 'Error Step', 'Error saving contract', 'saveDeployedContract', JSON.stringify(error), 'error');
+        next(error);
+    }
+};
+
+export const getContractsByWalletAddress = async (req: Request, res: Response, next: NextFunction) => {
+    const childLogger = (req as any).childLogger as winston.Logger;
+    const { walletAddress } = req.query;  // Assuming walletAddress is passed as a query parameter
+
+    if (!childLogger) {
+        return next(new Error('Internal Server Error'));
+    }
+
+    // Validate input for walletAddress
+    if (!walletAddress) {
+        return res.status(400).json({ success: false, message: 'walletAddress is required' });
+    }
+
+    try {
+        logWithMessageAndStep(childLogger, "Step 1", "Fetching contracts by wallet address", "getContractsByWalletAddress", JSON.stringify(req.query), "info");
+
+        // Fetch the contracts associated with the provided walletAddress
+        const contracts = await prisma.deployedContract.findMany({
+            where: {
+                walletAddress: walletAddress as string,
+            },
+            select: {
+                contractName: true,
+                deployedAddress: true,
+                walletAddress: true,
+                createdAt: true, // Include any other fields you need
+            }
+        });
+
+        if (contracts.length === 0) {
+            return res.status(404).json({ success: false, message: `No contracts found for walletAddress "${walletAddress}"` });
+        }
+
+        logWithMessageAndStep(childLogger, "Step 2", "Fetched contracts successfully", "getContractsByWalletAddress", "Contracts found", "info");
+
+        return res.status(200).json({ success: true, contracts });
+    } catch (error) {
+        logWithMessageAndStep(childLogger, "Error Step", "Error fetching contracts", "getContractsByWalletAddress", JSON.stringify(error), "error");
+        return next(error);
     }
 };
