@@ -72,3 +72,12 @@ model blogs {
   // createdAt   DateTime @default(now())
   // updatedAt   DateTime @updatedAt
 }
+
+model DeployedContract {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  contractName    String
+  deployedAddress String
+  walletAddress   String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

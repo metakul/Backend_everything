@@ -12,4 +12,8 @@ router.post("/compileContract", ContractsController.compileContract);
 router.get("/getContracts", ContractsController.getContracts);
 router.get("/getContractByName", ContractsController.getContractByName);
 
+
+// user contract routes
+router.post("/saveDeployedContract", ContractsController.saveDeployedContract);
+router.get("/getMyContracts", ContractsController.getContractsByWalletAddress);
 export default router;
