@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Helper function to serialize BigInt properties in an object
-export function serializeBigInt(obj: any): any {
+export function serializeBigInt(obj) {
     if (obj === null || typeof obj !== 'object') {
         return obj; // Return non-object values as-is
     }
