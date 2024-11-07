@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import BlockchainSDK from '../../Projects/Blockchain/Explorer/main.js';
 import { serializeBigInt } from '../../Utils/scripts/SerializeBigInt.js';
 import { BlockchainError } from '../../DataTypes/enums/Error.js';
+import { ethers } from 'ethers';
 
 // Use a variable to hold the instance of the BlockchainSDK
 let blockchainSDK: BlockchainSDK | null = null;
@@ -226,7 +227,7 @@ export const getAddressDetails = async (req: Request, res: Response, next: NextF
             // Convert BigInt properties to number
             const convertedDetails = {
                 ...details,
-                balance: details.balance ? serializeBigInt(details.balance) : 0,
+                balance: details.balance ? ethers.formatUnits(details.balance.toString(), 18) : '0',
             };
 
             res.status(200).json(convertedDetails);

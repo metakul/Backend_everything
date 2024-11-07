@@ -14,7 +14,7 @@ router.post('/transaction/:txHash', BlockchainController.getTransaction);
 router.post('/transaction/private', BlockchainController.sendPrivateTransaction);
 
 // Route to get address details (balance and transactions)
-router.get('/address/:address', BlockchainController.getAddressDetails);
+router.post('/address/:address', BlockchainController.getAddressDetails);
 
 // get previous blocks
 router.post('/blocks/previous/:numberOfBlocks', BlockchainController.getPreviousBlocks);

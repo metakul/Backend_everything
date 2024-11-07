@@ -139,17 +139,27 @@ class BlockchainSDK {
 
     // Helper to get address transactions
     
-    private async getTransactionsByAddress(address: string): Promise<Transaction[]> {
+    private async getTransactionsByAddress(address: string, blockCount: number = 5): Promise<Transaction[]> {
         const transactions: Transaction[] = [];
-        const latestBlock = await this.getBlock('latest');
 
-        if (latestBlock && latestBlock.transactions) {
-            // Iterate over each transaction in the latest block
-            for (const txHash of latestBlock.transactions) {
-                const tx = await this.getTransaction(txHash as string);
-                // Check if the transaction involves the specified address
-                if (tx && (tx.from === address || tx.to === address)) {
-                    transactions.push(tx);
+        // Start from the latest block
+        let currentBlockNumber: number;
+        if (this.type === 'web3') {
+            currentBlockNumber = Number(await (this.provider as Web3).eth.getBlockNumber());
+        } else {
+            currentBlockNumber = await (this.provider as ethers.JsonRpcProvider).getBlockNumber();
+        }
+
+        for (let i = 0; i < blockCount; i++) {
+            const block = await this.getBlock(currentBlockNumber - i);
+            if (block && block.transactions) {
+                // Iterate over each transaction in the block
+                for (const txHash of block.transactions) {
+                    const tx = await this.getTransaction(txHash as string);
+                    // Check if the transaction involves the specified address
+                    if (tx && (tx.from === address || tx.to === address)) {
+                        transactions.push(tx);
+                    }
                 }
             }
         }
