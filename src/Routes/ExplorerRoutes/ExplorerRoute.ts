@@ -25,4 +25,6 @@ router.post('/block/transactions/:blockNumber', BlockchainController.getTransact
 //get all previous trx by pagination
 router.post('/block/allTransactions/:requiredTransactions', BlockchainController.getAllTransactionsInPreviousBlocks);
 
+router.post('/stats', BlockchainController.getNetworkStats);
+
 export default router;

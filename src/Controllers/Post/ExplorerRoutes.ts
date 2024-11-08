@@ -9,7 +9,7 @@ import { ethers } from 'ethers';
 let blockchainSDK: BlockchainSDK | null = null;
 
 // Initialize the Blockchain SDK with provider URL from the request
-const initializeBlockchainSDK = (providerUrl: string, providerType: 'web3' | 'ethers') => {
+const initializeBlockchainSDK = (providerUrl: string, providerType:  'ethers') => {
     blockchainSDK = new BlockchainSDK(providerUrl, providerType);
 };
 
@@ -22,7 +22,7 @@ export const getBlock = async (req: Request, res: Response, next: NextFunction) 
             throw BlockchainError.MissingProviderUrl();
         }
 
-        initializeBlockchainSDK(providerUrl, 'web3'); // You can set it to 'ethers' if needed
+        initializeBlockchainSDK(providerUrl, 'ethers'); // You can set it to 'ethers' if needed
 
         const blockNumber = req.params.blockNumber === 'latest' ? 'latest' : parseInt(req.params.blockNumber);
         const block = await blockchainSDK?.getBlock(blockNumber);
@@ -40,8 +40,6 @@ export const getBlock = async (req: Request, res: Response, next: NextFunction) 
 
 export const getPreviousBlocks = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(req.body);
-        
         const { providerUrl } = req.body; // Get provider URL from request body
         const { numberOfBlocks } = req.params; // Number of previous blocks to retrieve
 
@@ -49,7 +47,7 @@ export const getPreviousBlocks = async (req: Request, res: Response, next: NextF
             throw BlockchainError.MissingProviderUrl();
         }
 
-        initializeBlockchainSDK(providerUrl, 'web3');
+        initializeBlockchainSDK(providerUrl, 'ethers');
 
         const latestBlock = await blockchainSDK?.getBlock('latest');
         if (!latestBlock) {
@@ -86,7 +84,7 @@ export const getTransactionsInBlock = async (req: Request, res: Response, next: 
             throw BlockchainError.MissingProviderUrl();
         }
 
-        initializeBlockchainSDK(providerUrl, 'web3');
+        initializeBlockchainSDK(providerUrl, 'ethers');
 
         // Determine if the block number is 'latest' or a number
         const blockNumber = blockNumberParam === 'latest' ? 'latest' : parseInt(blockNumberParam);
@@ -119,7 +117,7 @@ export const getAllTransactionsInPreviousBlocks = async (req: Request, res: Resp
             throw BlockchainError.MissingProviderUrl();
         }
 
-        initializeBlockchainSDK(providerUrl, 'web3');
+        initializeBlockchainSDK(providerUrl, 'ethers');
 
         const latestBlock = await blockchainSDK?.getBlock('latest');
         if (!latestBlock) {
@@ -168,13 +166,11 @@ export const getTransaction = async (req: Request, res: Response, next: NextFunc
     try {
         const { providerUrl } = req.body; // Get provider URL from request body
 
-        console.log(req.body);
-        
         if (!providerUrl) {
             throw BlockchainError.MissingProviderUrl();
         }
 
-        initializeBlockchainSDK(providerUrl, 'web3');
+        initializeBlockchainSDK(providerUrl, 'ethers');
 
         const transaction = await blockchainSDK?.getTransaction(req.params.txHash);
         const serializedTrx = serializeBigInt(transaction);
@@ -196,10 +192,12 @@ export const sendPrivateTransaction = async (req: Request, res: Response, next: 
         if (!providerUrl) {
             throw BlockchainError.MissingProviderUrl();
         }
-        initializeBlockchainSDK(providerUrl, 'web3');
+        initializeBlockchainSDK(providerUrl, 'ethers');
 
+        // todo: remove eslint after using privateOptions
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const privateOptions = { privateFor, privacyFlag };
-        const receipt = await blockchainSDK?.sendPrivateTransaction(from, to, value, gas, privateOptions);
+        const receipt = await blockchainSDK?.sendPrivateTransaction(from, to, value, gas /*, privateOptions*/);
         if (receipt) {
             res.status(201).json(receipt);
         } else {
@@ -218,7 +216,7 @@ export const getAddressDetails = async (req: Request, res: Response, next: NextF
         if (!providerUrl) {
             throw BlockchainError.MissingProviderUrl();
         }
-        initializeBlockchainSDK(providerUrl, 'web3');
+        initializeBlockchainSDK(providerUrl, 'ethers');
 
 
         const address = req.params.address;
@@ -233,6 +231,29 @@ export const getAddressDetails = async (req: Request, res: Response, next: NextF
             res.status(200).json(convertedDetails);
         } else {
             res.status(404).json({ error: 'Address not found or no transactions' });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// Get Network Statistics
+export const getNetworkStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { providerUrl } = req.body;
+
+        if (!providerUrl) {
+            throw BlockchainError.MissingProviderUrl();
+        }
+
+        initializeBlockchainSDK(providerUrl, 'ethers');
+
+        const networkStats = await blockchainSDK?.getNetworkStats();
+        if (networkStats) {
+            res.status(200).json(networkStats);
+        } else {
+            res.status(404).json({ error: 'Failed to retrieve network statistics' });
         }
     } catch (error) {
         next(error);
