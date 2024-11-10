@@ -4,6 +4,7 @@ import router from './Routes/index.js';
 import { loggerMiddleware } from './Helpers/Logger/logger.js';
 import { isDatabaseHealthy } from './db/client.js';
 import bodyParser from 'body-parser';
+import { setupSwagger } from './swagger.js';
 
 const app: Express = express();
 
@@ -29,14 +30,14 @@ isDatabaseHealthy();
 
 // Middleware logger
 app.use("/", loggerMiddleware());
-//backend Load req
-app.get("/", (req, res) => {
-  res.send("Website is running");
-});
+
+// Setup Swagger
+setupSwagger(app);
+
 // Route for handling requests
 app.use("/", router);
 
-const PORT=process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 // Start the server
 app.listen(PORT, function(){
   console.log(`Express server listening on port ${PORT} in localhost`);
