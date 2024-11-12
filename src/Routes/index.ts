@@ -1,6 +1,7 @@
 import express from "express";
 import UserRoutes from './UserRoutes/UserRoutes.js';
 import CommonRoutes from './CommonRoutes/CommonRoutes.js';
+import RandomRoutes from './CommonRoutes/RandomRoutes.js';
 import SuperAdminRoutes from './SuperAdminRoutes/SuperAdminRoutes.js';
 import RoleRoutes from './RolePermRoutes/RoleRoutes.js';
 import PermissionRoutes from './RolePermRoutes/PermissionRoutes.js';
@@ -85,6 +86,12 @@ router.use(
   "/V1",
   CheckPrismaConnection,
   ExplorerRoute
+);
+
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  RandomRoutes
 );
 
 router.use(handleError)
