@@ -1,1 +1,0 @@
-export { default as BlockchainSDK } from './BlockchainSDK.js';
