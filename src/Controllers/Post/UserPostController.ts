@@ -58,9 +58,9 @@ const processUpdateUser = async (
             accountStatus: userModelValidation.accountStatus,
         };
 
-        const existingUser = await prisma.users.findUnique({
-            where: { id: user.id }
-        });
+        // const existingUser = await prisma.users.findUnique({
+        //     where: { id: user.id }
+        // });
         // logWithMessageAndStep(childLogger, "Step 5", "Updating user and checks for apikey Is created or not", "updateUser", JSON.stringify(existingUser), "debug");
 
         if (userModelValidation.accountStatus === accountStatus.Approved) {
