@@ -1,10 +1,9 @@
 {
   "name": "meta-explorer",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "description": "C3I blockchain SDK to fetch data from multi-chains",
-  "main": "dist/index.js",
-    "type": "module",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"

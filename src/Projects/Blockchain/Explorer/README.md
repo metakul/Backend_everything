@@ -13,7 +13,10 @@ Install the package using npm:
 
 To use the SDK, import it into your project:
 
-`import BlockchainSDK from 'blockchain-sdk';`
+```
+import meta_explorer from 'meta-explorer';
+const { BlockchainSDK } = meta_explorer;
+```
 
 ### Initializing the SDK
 

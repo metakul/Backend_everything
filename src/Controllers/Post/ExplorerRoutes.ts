@@ -1,12 +1,13 @@
 // src/Controllers/BlockchainController.ts
 import { Request, Response, NextFunction } from 'express';
-import BlockchainSDK from '../../Projects/Blockchain/Explorer/main.js';
 import { serializeBigInt } from '../../Utils/scripts/SerializeBigInt.js';
 import { BlockchainError } from '../../DataTypes/enums/Error.js';
 import { ethers } from 'ethers';
+import meta_explorer from 'meta-explorer';
 
+const { BlockchainSDK } = meta_explorer;
 // Use a variable to hold the instance of the BlockchainSDK
-let blockchainSDK: BlockchainSDK | null = null;
+let blockchainSDK: InstanceType<typeof BlockchainSDK> | null = null;
 
 // Initialize the Blockchain SDK with provider URL from the request
 const initializeBlockchainSDK = (providerUrl: string, providerType:  'ethers') => {
