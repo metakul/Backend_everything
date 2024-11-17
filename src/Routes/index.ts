@@ -78,11 +78,11 @@ router.use(
   BotRoutes
 );
 
-router.use(
-  "/V1",
-  CheckPrismaConnection,
-  HardhatRoutes
-);
+// router.use(
+//   "/V1",
+//   CheckPrismaConnection,
+//   HardhatRoutes
+// );
 router.use(
   "/V1",
   CheckPrismaConnection,
