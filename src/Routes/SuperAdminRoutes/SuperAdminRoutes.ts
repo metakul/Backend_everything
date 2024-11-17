@@ -1,5 +1,7 @@
 import express from "express";
 import * as SuperAdminController from "../../Controllers/Post/SuperAdmin.js";
+import checkJwt from "../../Middleware/checkJwt.js";
+import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -34,6 +36,6 @@ const router = express.Router({ mergeParams: true });
  *       500:
  *         description: Internal server error
  */
-router.post("/setSuperAdmin", SuperAdminController.Create_superAdmin);
+router.post("/setSuperAdmin",checkJwt([UserCategory.SUPER_ADMIN]), SuperAdminController.Create_superAdmin);
 
 export default router;

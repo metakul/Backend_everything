@@ -4,6 +4,7 @@ import * as UserGetController from "../../Controllers/Get/UserGetController.js";
 import CheckPermission from "../../Middleware/CheckPermission.js";
 import { ReadPermissionControl, UpdatePermissionControl } from "../../DataTypes/rbac/permission.js";
 import checkJwt from "../../Middleware/checkJwt.js";
+import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -66,7 +67,7 @@ router.post("/register", UserPostController.register);
  *         description: Unauthorized
  */
 router.get("/orgList",
-    checkJwt,
+    checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User]), 
     CheckPermission(ReadPermissionControl.can_read_orgList),
     UserGetController.orgList);
 
@@ -101,7 +102,7 @@ router.get("/orgList",
  *         description: Unauthorized
  */
 router.patch("/updateOrg",
-    checkJwt,
+    checkJwt([UserCategory.SUPER_ADMIN ]), 
     CheckPermission(UpdatePermissionControl.can_update_org),
     UserPostController.updateUser);
 

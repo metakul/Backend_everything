@@ -8,6 +8,7 @@ import checkJwt from "../../Middleware/checkJwt.js";
 import * as CommonController from "../../Controllers/Post/CommonPostController.js";
 import * as CommonGetController from "../../Controllers/Get/CommonGetController.js";
 import { checkIdentifier } from "../../Middleware/CheckIdentifier.js";
+import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 
 const router = express.Router({ mergeParams: true });
 
@@ -66,29 +67,7 @@ router.post("/login",
  *         description: Internal server error
  */
 router.get("/profile",
-    checkJwt,
-    // ValidateApiKey,
-    CheckPermission(ReadPermissionControl.can_read_profile),
-    checkUserCategoryExists,
-    CommonGetController.profile);
-
-/**
- * @swagger
- * /profile:
- *   get:
- *     summary: Get user profile
- *     tags: 
- *       - Common
- *     responses:
- *       200:
- *         description: User profile retrieved successfully
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- */
-router.get("/profile",
-    checkJwt,
+    checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User,UserCategory.SUPER_ADMIN,UserCategory.ROADIES_SUPER_ADMIN]),
     // (req, res, next) => {
     //     const identifierType = req.query.phoneNumber ? 'phoneNumber' : 'email';
     //     ValidateApiKey(req, res, next, identifierType);
@@ -248,10 +227,10 @@ router.post("/resendOtp", (req, res, next) => {
  *       500:
  *         description: Internal server error
  */
-router.post("/resetPassword", (req, res, next) => {
-    const identifierType = req.body.phoneNumber ? 'phoneNumber' : 'email';
-    checkIdentifier(req, res, next, identifierType);
-}, CommonController.resetPassword);
+// router.post("/resetPassword", (req, res, next) => {
+//     const identifierType = req.body.phoneNumber ? 'phoneNumber' : 'email';
+//     checkIdentifier(req, res, next, identifierType);
+// }, CommonController.resetPassword);
 
 /**
  * @swagger
@@ -287,10 +266,10 @@ router.post("/resetPassword", (req, res, next) => {
  *       500:
  *         description: Internal server error
  */
-router.patch("/verifyResetPassword", (req, res, next) => {
-    const identifierType = req.body.phoneNumber ? 'phoneNumber' : 'email';
-    checkIdentifier(req, res, next, identifierType);
-}, CommonController.verifyResetPassword);
+// router.patch("/verifyResetPassword", (req, res, next) => {
+//     const identifierType = req.body.phoneNumber ? 'phoneNumber' : 'email';
+//     checkIdentifier(req, res, next, identifierType);
+// }, CommonController.verifyResetPassword);
 
 /**
  * @swagger
@@ -320,11 +299,11 @@ router.patch("/verifyResetPassword", (req, res, next) => {
  *       500:
  *         description: Internal server error
  */
-router.patch("/updatePassword", checkJwt,
-    // (req, res, next) => {
-    //     const identifierType = req.body.phoneNumber ? 'phoneNumber' : 'email';
-    //     ValidateApiKey(req, res, next, identifierType);
-    // },
-     CommonController.updatePassword);
+// router.patch("/updatePassword", checkJwt,
+//     // (req, res, next) => {
+//     //     const identifierType = req.body.phoneNumber ? 'phoneNumber' : 'email';
+//     //     ValidateApiKey(req, res, next, identifierType);
+//     // },
+//      CommonController.updatePassword);
 
 export default router;

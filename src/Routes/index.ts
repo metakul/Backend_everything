@@ -7,6 +7,7 @@ import RoleRoutes from './RolePermRoutes/RoleRoutes.js';
 import PermissionRoutes from './RolePermRoutes/PermissionRoutes.js';
 import BotRoutes from './BotRoutes/BotRoutes.js';
 import BlogRoutes from './BlogRoutes/BlogRoutes.js';
+import DropShipRoutes from "./DropShipRoutes/DropShipRoutes.js"
 import HardhatRoutes from './ContractRoutes/ContractRoutes.js';
 import handleError from "../Middleware/error.js";
 import { Request, Response, NextFunction } from "express";
@@ -84,7 +85,17 @@ router.use(
 router.use(
   "/V1",
   CheckPrismaConnection,
+  HardhatRoutes
+);
+router.use(
+  "/V1",
+  CheckPrismaConnection,
   RandomRoutes
+);
+router.use(
+  "/V1/DropShip",
+  CheckPrismaConnection,
+  DropShipRoutes
 );
 
 router.use(handleError)

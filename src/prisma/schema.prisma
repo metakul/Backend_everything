@@ -86,3 +86,17 @@ model totalDownload {
    id          String    @id @default(auto()) @map("_id") @db.ObjectId
   count Int    @default(0)                   // Download count starting from 0
 }
+
+model dropShips {
+  id                 String      @id @default(auto()) @map("_id") @db.ObjectId
+  title              String
+  description        String
+  image              String
+  author             String
+  categories         String[]
+  price              Float?
+  totalItemRemaining Int?
+  status             String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}

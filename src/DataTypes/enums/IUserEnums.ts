@@ -10,6 +10,7 @@ export enum UserCategory {
     Holder = 'holder',
     User = 'user',
     SUPER_ADMIN = 'SUPER_ADMIN',
+    ROADIES_SUPER_ADMIN = 'ROADIES_SUPER_ADMIN',
 }
 
 export enum otpPurpose {
@@ -18,6 +19,11 @@ export enum otpPurpose {
 }
 
 export enum BlogsStatusInfo {
+    APPROVED = 'approved',
+    PENDING = 'pending',
+    REJECTED = 'rejected'
+  }
+export enum DropShipsStatusInfo {
     APPROVED = 'approved',
     PENDING = 'pending',
     REJECTED = 'rejected'

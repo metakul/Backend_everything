@@ -1,11 +1,15 @@
 
 import { z } from "zod";
-import { accountStatus } from "../DataTypes/enums/IUserEnums.js";
+import { accountStatus, UserCategory } from "../DataTypes/enums/IUserEnums.js";
 
 export const InitSuperAdminSchema = z.object({
   email: z.string(),
   password: z.string(),
-  name: z.string()
+  name: z.string(),
+  category: z.union([
+    z.literal(UserCategory.SUPER_ADMIN),
+    z.literal(UserCategory.ROADIES_SUPER_ADMIN),
+  ]),
 })
 
 export const RegisterUserSchema = z.object({

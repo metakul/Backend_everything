@@ -2,6 +2,7 @@ import { Router } from "express";
 import cors from "cors";
 import checkJwt from "../../Middleware/checkJwt.js";
 import * as BlogController from "../../Controllers/Post/BlogsController.js";
+import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 
 const router: Router = Router();
 router.use(cors());
@@ -19,12 +20,12 @@ router.get("/:blogId", BlogController.getBlog);
 router.get("/cryptoInfo/:cryptoId", BlogController.getCryptoInfo);
 
 //update blog
-router.patch("/:blogId",checkJwt, BlogController.updateBlog);
+router.patch("/:blogId",checkJwt([UserCategory.SUPER_ADMIN]), BlogController.updateBlog);
 
-router.patch('/updateStatus/:blogId',checkJwt, BlogController.updateBlogStatus);
+router.patch('/updateStatus/:blogId',checkJwt([UserCategory.SUPER_ADMIN]), BlogController.updateBlogStatus);
 
 
 //delete blog
-router.delete("/:blogId",checkJwt, BlogController.deleteBlog);
+router.delete("/:blogId",checkJwt([UserCategory.SUPER_ADMIN]), BlogController.deleteBlog);
 
 export default router;

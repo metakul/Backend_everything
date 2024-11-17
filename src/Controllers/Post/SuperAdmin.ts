@@ -40,14 +40,14 @@ export const Create_superAdmin = async (
         if (!systemAdminValidation || systemAdminValidation == undefined) {
             throw ErrorEnum.SignUpValidationError(JSON.stringify(req.body))
         }
-        const existingAdmin = await prisma.superAdmin.findUnique({
-            where: { category: UserCategory.SUPER_ADMIN },
-        })
-        logWithMessageAndStep(childLogger, "Step 5", "Checkng if admin Already Exist or not", "Create_superAdmin", JSON.stringify(!existingAdmin), "info");
-        if (existingAdmin) {
-            logWithMessageAndStep(childLogger, "Error Step", "Super admin Alread Exist", "Create_superAdmin", JSON.stringify(!existingAdmin), "warn");
-            throw SuperAdminError.SuperAdminInitError()
-        }
+        // const existingAdmin = await prisma.superAdmin.findUnique({
+        //     where: { category: UserCategory.SUPER_ADMIN },
+        // })
+        // logWithMessageAndStep(childLogger, "Step 5", "Checkng if admin Already Exist or not", "Create_superAdmin", JSON.stringify(!existingAdmin), "info");
+        // if (existingAdmin) {
+        //     logWithMessageAndStep(childLogger, "Error Step", "Super admin Alread Exist", "Create_superAdmin", JSON.stringify(!existingAdmin), "warn");
+        //     throw SuperAdminError.SuperAdminInitError()
+        // }
         // Create a new System Admin
 
 
@@ -63,7 +63,7 @@ export const Create_superAdmin = async (
                 email: systemAdminValidation.email,
                 name: systemAdminValidation.name,
                 password: systemAdminValidation.password,
-                category: UserCategory.SUPER_ADMIN,
+                category: systemAdminValidation.category || UserCategory.SUPER_ADMIN,
                 permissions: allPermissions
             },
         });

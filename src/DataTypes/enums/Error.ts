@@ -54,6 +54,11 @@ export const ErrorEnum = {
         message: `Invalid Account Status. Current Status of user is '${currentStatus}'`,
         details: ""
     }),
+    Unauthorized: (): ErrorObject => ({
+        statusCode: 404,
+        message: "Un-Authorised User",
+        details: ""
+    }),
     InvalidAccountCategory: (userEmail: IUser["email"] | undefined): ErrorObject => ({
         statusCode: 404,
         message: `Invalid Account Category for user '${userEmail}'`,
@@ -331,4 +336,28 @@ export const BlogsError = {
         details: "There was an error while adding the new blog."
     }),
     // Add other specific blog-related errors as needed
+};
+
+export const DropShipsError = {
+    InvalidStatusProvided: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Invalid Status Provided",
+        details: "The provided status is not valid."
+    }),
+    InvalidDropShipDetails: (dropShipItemsIdValidation:any): ErrorObject => ({
+        statusCode: 400,
+        message: "Invalid DropShip Details",
+        details: dropShipItemsIdValidation
+    }),
+    DropShipNotFound: (): ErrorObject => ({
+        statusCode: 404,
+        message: "No More DropShip Item Found",
+        details: "The specified dropShip does not exist."
+    }),
+    ErrorAddingDropShip: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Error Adding DropShip",
+        details: "There was an error while adding the new dropShip."
+    }),
+    // Add other specific dropShip-related errors as needed
 };
