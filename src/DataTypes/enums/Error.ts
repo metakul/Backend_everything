@@ -312,6 +312,11 @@ export const BlockchainError = {
         message: "Error interacting with blockchain",
         details: hardhatError
     }),
+    MissingProviderUrl : (): ErrorObject =>({
+        statusCode: 400,
+        message: "Rpc Url Required",
+        details: "A valid Rpc endpoint is needed to interact with blockchain."
+    })
     // Add other specific blockchain-related errors as needed
 };
 export const BlogsError = {
