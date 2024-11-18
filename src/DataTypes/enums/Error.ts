@@ -111,6 +111,80 @@ export const ErrorEnum = {
     }),
 };
 
+export const PaymentError = {
+
+    InternalPaymentError: (error?: unknown): ErrorObject => ({
+        statusCode: 500,
+        message: `Internal Payment Processing Error`,
+        details: error
+    }),
+    PaymentNotFound: (error?: unknown): ErrorObject => ({
+        statusCode: 404,
+        message: ` Payment Not Found`,
+        details: error
+    }),
+    
+    PaymentMethodNotFound: (method: string): ErrorObject => ({
+        statusCode: 404,
+        message: `Payment method '${method}' not found.`,
+        details: ""
+    }),
+
+    PaymentFailed: (reason: string): ErrorObject => ({
+        statusCode: 401,
+        message: `Payment failed due to: ${reason}`,
+        details: ""
+    }),
+
+    PaymentTimeout: (): ErrorObject => ({
+        statusCode: 401,
+        message: `Payment request timed out. Please try again later.`,
+        details: ""
+    }),
+
+    InvalidPaymentDetails: (): ErrorObject => ({
+        statusCode: 400,
+        message: `Invalid payment details provided.`,
+        details: ""
+    }),
+
+    InsufficientFunds: (amount: number): ErrorObject => ({
+        statusCode: 401,
+        message: `Insufficient funds to complete payment of ${amount}.`,
+        details: ""
+    }),
+
+    UnauthorizedPaymentAccess: (): ErrorObject => ({
+        statusCode: 401,
+        message: `Unauthorized access to the payment system.`,
+        details: ""
+    }),
+
+    DuplicateTransaction: (transactionId: string): ErrorObject => ({
+        statusCode: 401,
+        message: `Duplicate transaction detected with ID '${transactionId}'.`,
+        details: ""
+    }),
+
+    PaymentGatewayError: (gateway: string, error: unknown): ErrorObject => ({
+        statusCode: 500,
+        message: `Payment gateway '${gateway}' encountered an error.`,
+        details: error
+    }),
+
+    InvalidCouponCode: (couponCode: string): ErrorObject => ({
+        statusCode: 400,
+        message: `Invalid coupon code '${couponCode}' provided.`,
+        details: ""
+    }),
+
+    PaymentProcessingError: (): ErrorObject => ({
+        statusCode: 500,
+        message: `Payment processing service is unavailable at the moment.`,
+        details: ""
+    }),
+};
+
 
 export const APIKeyError = {
     NoAPIKey: (): ErrorObject => ({

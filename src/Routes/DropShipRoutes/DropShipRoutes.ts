@@ -7,7 +7,7 @@ import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 const router: Router = Router();
 router.use(cors());
 //create dropShip
-router.post("/",checkJwt, DropShipController.CreateDropShip);
+router.post("/",checkJwt([UserCategory.ROADIES_SUPER_ADMIN]), DropShipController.CreateDropShip);
 
 
 

@@ -242,31 +242,34 @@ export const updateDropShip = async (
       req.body
     );
 
-   
-      const updatedDropShip = await prisma.dropShips.update({
-          where: { id: resUpdateDropShipValidation.dropShipItemsId },
-          data: {
-            title: resUpdateDropShipValidation.title,
-            description: resUpdateDropShipValidation.description,
-            image: resUpdateDropShipValidation.image,
-            author: resUpdateDropShipValidation.author,
-            categories: resUpdateDropShipValidation.categories,
-            price: resUpdateDropShipValidation.price,
-            totalItemRemaining: resUpdateDropShipValidation.totalItemRemaining,
-          },
-        });
+    console.log(resUpdateDropShipValidation);
 
-      if (updatedDropShip) {
-        res.status(200).json(
-            updatedDropShip
-        );
-      } else {
-        throw DropShipsError.DropShipNotFound();
-      }
+    // Ensure `id` is not being updated by accident
+    const { dropShipItemsId, ...updateData } = resUpdateDropShipValidation;
+
+    const updatedDropShip = await prisma.dropShips.update({
+      where: { id: dropShipItemsId },
+      data: {
+        title: updateData.title,
+        description: updateData.description,
+        image: updateData.image,
+        author: updateData.author,
+        categories: updateData.categories,
+        price: updateData.price,
+        totalItemRemaining: updateData.totalItemRemaining,
+      },
+    });
+
+    if (updatedDropShip) {
+      res.status(200).json(updatedDropShip);
+    } else {
+      throw DropShipsError.DropShipNotFound();
+    }
   } catch (error) {
     next(error);
   }
 };
+
 
 
 //todo change this cryptoInfo to getPrice of items

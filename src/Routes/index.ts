@@ -10,6 +10,7 @@ import BlogRoutes from './BlogRoutes/BlogRoutes.js';
 import DropShipRoutes from "./DropShipRoutes/DropShipRoutes.js"
 import ExplorerRoute from './ExplorerRoutes/ExplorerRoute.js';
 import HardhatRoutes from './ContractRoutes/ContractRoutes.js';
+import PaymentRoutes from './PaymentRoutes/PaymentRoutes.js';
 import handleError from "../Middleware/error.js";
 import { Request, Response, NextFunction } from "express";
 import { MongooseError } from "../DataTypes/enums/Error.js";
@@ -55,6 +56,12 @@ router.use(
   "/V1",
   CheckPrismaConnection,
   CommonRoutes
+);
+
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  PaymentRoutes
 );
 
 router.use(
