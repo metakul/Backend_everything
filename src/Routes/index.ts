@@ -10,6 +10,7 @@ import BlogRoutes from './BlogRoutes/BlogRoutes.js';
 import DropShipRoutes from "./DropShipRoutes/DropShipRoutes.js"
 import ExplorerRoute from './ExplorerRoutes/ExplorerRoute.js';
 import HardhatRoutes from './ContractRoutes/ContractRoutes.js';
+import PasswordLessLoginRoutes from './PasswordLessLogin/PasswordLessLoginRoute.js';
 import PaymentRoutes from './PaymentRoutes/PaymentRoutes.js';
 import handleError from "../Middleware/error.js";
 import { Request, Response, NextFunction } from "express";
@@ -56,6 +57,11 @@ router.use(
   "/V1",
   CheckPrismaConnection,
   CommonRoutes
+);
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  PasswordLessLoginRoutes
 );
 
 router.use(
