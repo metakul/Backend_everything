@@ -12,6 +12,7 @@ import ExplorerRoute from './ExplorerRoutes/ExplorerRoute.js';
 import HardhatRoutes from './ContractRoutes/ContractRoutes.js';
 import PasswordLessLoginRoutes from './PasswordLessLogin/PasswordLessLoginRoute.js';
 import PaymentRoutes from './PaymentRoutes/PaymentRoutes.js';
+import CartRoutes from './CartRoutes/CartRoutes.js';
 import handleError from "../Middleware/error.js";
 import { Request, Response, NextFunction } from "express";
 import { MongooseError } from "../DataTypes/enums/Error.js";
@@ -95,6 +96,11 @@ router.use(
   "/V1",
   CheckPrismaConnection,
   HardhatRoutes
+);
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  CartRoutes
 );
 router.use(
   "/V1",

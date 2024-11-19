@@ -35,6 +35,7 @@ model wiwusers {
   permissions    String[]
   roleId         String?
   razorpayPayments String[] @default([])
+  cartItems Json[]
   v              Int?      @ignore
 }
 
