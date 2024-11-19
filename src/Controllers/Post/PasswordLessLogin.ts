@@ -253,13 +253,15 @@ export const verifyOtpLogin = async (
             });
         }
 
-        res.status(200).json({
-            message: "Login successful",
+        res.status(200).json({data: {
+            name: user.name,
             token: {
-                accessToken,
-                refreshToken
-              },
-        });
+              accessToken,
+              refreshToken
+            },
+            email: user.email,
+            category: user.category,
+          }});
     } catch (error) {
         logWithMessageAndStep(
             childLogger,
