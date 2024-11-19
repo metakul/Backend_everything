@@ -332,7 +332,7 @@ const mockVerifyOtpRequest = async (verifyOtpData: any) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Simulated verification success/failure
-    const isSuccess = Math.random() < 0.8; // 80% chance of success
+    const isSuccess =true
 
     if (isSuccess) {
         return {

@@ -119,4 +119,79 @@ router.get(
  */
 router.post("/passwordless/refreshLoginToken", PasswordLessLogin.refreshLoginToken);
 
+
+/**
+ * @swagger
+ * /payments/add:
+ *   post:
+ *     summary: Add a Razorpay Payment ID to the user's profile
+ *     tags: 
+ *       - Payments
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               paymentId:
+ *                 type: string
+ *                 description: The Razorpay Payment ID to be added
+ *     responses:
+ *       200:
+ *         description: Payment ID added successfully
+ *       400:
+ *         description: Bad Request (e.g., Payment ID not provided)
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+    "/payments/add",
+    checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User,UserCategory.SUPER_ADMIN,UserCategory.ROADIES_SUPER_ADMIN]),
+
+    checkUserCategoryExists,
+    CommonGetController.addPaymentId
+);
+
+/**
+ * @swagger
+ * /payments/get:
+ *   get:
+ *     summary: Get all Razorpay Payment IDs associated with the user's profile
+ *     tags: 
+ *       - Payments
+ *     responses:
+ *       200:
+ *         description: Payment IDs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Razorpay Payment IDs fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     description: A list of Razorpay Payment IDs
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+    "/payments/get",
+    checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User,UserCategory.SUPER_ADMIN,UserCategory.ROADIES_SUPER_ADMIN]),
+
+    checkUserCategoryExists,
+    CommonGetController.getPaymentIds
+);
+
+
 export default router;
