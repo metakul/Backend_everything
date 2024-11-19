@@ -47,15 +47,15 @@ export default function checkJwt(
             }
 
             try {
-                const decoded = jwt.verify(token, JWT_SECRET as string) as { user?: IUser };
+                const decoded = jwt.verify(token, JWT_SECRET as string) as  IUser 
                 logWithMessageAndStep(childLogger, "Middleware step 3", "Decoded Token", "checkJwt", JSON.stringify(decoded), "debug");
 
-                if (decoded.user) {
-                    req.user = decoded.user;
+                if (decoded) {
+                    req.user = decoded;
 
                     // Check if the category matches one of the allowed categories
-                    if (allowedCategories.length && !allowedCategories.includes(decoded.user.category)) {
-                        logWithMessageAndStep(childLogger, "Error Middleware step", "Unauthorized - Category mismatch", "checkJwt", JSON.stringify(decoded.user.category), "warn");
+                    if (allowedCategories.length && !allowedCategories.includes(decoded.category)) {
+                        logWithMessageAndStep(childLogger, "Error Middleware step", "Unauthorized - Category mismatch", "checkJwt", JSON.stringify(decoded.category), "warn");
                         return next(ErrorEnum.Unauthorized());
                     }
                 }

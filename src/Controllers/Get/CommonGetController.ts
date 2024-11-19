@@ -16,6 +16,9 @@ export const profile = async (
     try {
         const user = req.user
 
+        console.log(user);
+        
+
         if (user) {
             const { email } = user
 

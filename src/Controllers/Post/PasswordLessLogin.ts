@@ -7,6 +7,37 @@ import { sendOtpRequest, verifyOtpRequest } from "../../externalApis/otpService.
 import { prisma } from "../../db/client.js";
 import { otpPurpose } from "../../DataTypes/enums/IUserEnums.js";
 import { LoginUserRequest } from "src/Middleware/UserExist.js";
+import { ErrorEnum, MongooseError } from "../../DataTypes/enums/Error.js";
+import { IUser } from "../../DataTypes/interfaces/IUser.js";
+import { UserValidation } from "../../Validation/UserValidation.js";
+
+
+/**
+ * add new user
+ * @param userModelValidation
+ */
+export const addUser = async (userModelValidation: IUser, childLogger: any) => {
+    try {
+        logWithMessageAndStep(childLogger, "Step 8", "Adding User via PrismaDB", "register", JSON.stringify(userModelValidation), "debug")
+
+        const newUser = await prisma.wiwusers.create({
+            data: {
+                email: userModelValidation.email,
+                name: userModelValidation.name,
+                phoneNumber: userModelValidation.phoneNumber,
+                address: userModelValidation.address,
+                category: userModelValidation.category,
+                accountStatus: userModelValidation.accountStatus || "pending"
+            }
+        });
+        logWithMessageAndStep(childLogger, "Step 9", "User added to database", "register", JSON.stringify(newUser), "debug")
+
+        return newUser;
+    } catch (error) {
+        logWithMessageAndStep(childLogger, "Error step addUser", "Error while adding User in PrismaDB", "register", JSON.stringify(error), "error")
+        throw MongooseError.ErrorOfMongoose()
+    }
+};
 
 export const loginWithOtp = async (
     req: LoginUserRequest,
@@ -19,7 +50,7 @@ export const loginWithOtp = async (
         return next(new Error("Internal Server Error"));
     }
 
-    const { identifier, deviceId, name, email, password, phoneNumber, address, accountStatus, category, subcategory } = req.body;
+    const { phoneNumber, deviceId } = req.body;
 
     try {
         logWithMessageAndStep(
@@ -32,8 +63,8 @@ export const loginWithOtp = async (
         );
 
         // Fetch user by phone number
-        let user = await prisma.users.findUnique({
-            where: { phoneNumber: identifier },
+        let user = await prisma.wiwusers.findUnique({
+            where: { phoneNumber: phoneNumber },
             select: {
                 id: true,
                 email: true,
@@ -53,25 +84,38 @@ export const loginWithOtp = async (
                 JSON.stringify(req.body),
                 "info"
             );
+            // Validate user input
+            const userModelValidation: IUser | undefined = await UserValidation.validateAsync(req.body, childLogger);
 
-            user = await prisma.users.create({
-                data: {
-                    name,
-                    email,
-                    password, // Ensure you hash the password securely
-                    phoneNumber,
-                    address,
-                    accountStatus,
-                    category,
-                },
-                select: {
-                    id: true,
-                    email: true,
-                    name: true,
-                    phoneNumber: true,
-                    category: true,
-                },
+            if (!userModelValidation) {
+                throw ErrorEnum.SignUpValidationError(JSON.stringify(req.body));
+            }
+
+            // Check if phone number is available
+            const isPhoneNoAvailable = await prisma.wiwusers.findUnique({
+                where: { phoneNumber: String(userModelValidation.phoneNumber) },
             });
+            logWithMessageAndStep(childLogger, "Step 5", "Checking if phone is available", "register", JSON.stringify(!isPhoneNoAvailable), "debug");
+
+            if (isPhoneNoAvailable) {
+                throw ErrorEnum.SignUpValidationError(userModelValidation.phoneNumber);
+            }
+
+            // Check if email is available
+            const isEmailNoAvailable = await prisma.wiwusers.findUnique({
+                where: { email: String(userModelValidation.email) },
+            });
+            logWithMessageAndStep(childLogger, "Step 6", "Checking if email is available", "register", JSON.stringify(!isEmailNoAvailable), "debug");
+
+            if (isEmailNoAvailable) {
+                throw ErrorEnum.SignUpValidationError(userModelValidation.email);
+            }
+
+            // Register the user
+            logWithMessageAndStep(childLogger, "Step 7", "Sending data to Prisma DB for user registration", "register", JSON.stringify(userModelValidation), "info");
+
+            user = await addUser(userModelValidation, childLogger)
+
 
             logWithMessageAndStep(
                 childLogger,
@@ -86,12 +130,13 @@ export const loginWithOtp = async (
         // Send OTP
         const otpData = {
             purpose: otpPurpose.LOGIN,
-            identifier,
+            phoneNumber,
             deviceId,
             user: user.name,
         };
 
-        const otpResponse = await sendOtpRequest(otpData);
+        // const otpResponse = await sendOtpRequest(otpData);
+        const otpResponse = await mockSendOtpRequest(otpData);
 
         logWithMessageAndStep(
             childLogger,
@@ -130,7 +175,7 @@ export const verifyOtpLogin = async (
         return next(new Error("Internal Server Error"));
     }
 
-    const { otp, trxId, deviceId, identifier } = req.body;
+    const { otp, trxId, deviceId, phoneNumber } = req.body;
 
     try {
         logWithMessageAndStep(
@@ -144,7 +189,9 @@ export const verifyOtpLogin = async (
 
         // Verify OTP
         const verifyOtpData = { otp, trxId, deviceId };
-        const otpVerified = await verifyOtpRequest(verifyOtpData);
+        // const otpVerified = await verifyOtpRequest(verifyOtpData);
+        const otpVerified = await mockVerifyOtpRequest(verifyOtpData);
+        console.log(otpVerified);
 
         if (!otpVerified) {
             logWithMessageAndStep(
@@ -159,18 +206,21 @@ export const verifyOtpLogin = async (
         }
 
         // Fetch user details
-        const user = await prisma.users.findUnique({
-            where: identifier.includes("@")
-                ? { email: identifier }
-                : { phoneNumber: identifier },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                phoneNumber: true,
-                category: true,
-            },
-        });
+        let user
+        if (phoneNumber) {
+
+            user = await prisma.wiwusers.findUnique({
+                where: { phoneNumber: phoneNumber },
+                select: {
+                    id: true,
+                    phoneNumber: true,
+                    category: true,
+                    address: true,
+                    email: true,
+                    name: true,
+                },
+            });
+        }
 
         if (!user) {
             logWithMessageAndStep(
@@ -178,7 +228,7 @@ export const verifyOtpLogin = async (
                 "Error Step",
                 "User not found after OTP verification",
                 "verifyOtpLogin",
-                identifier,
+                phoneNumber,
                 "error"
             );
             return res.status(404).json({ error: "User not found" });
@@ -254,5 +304,37 @@ export const refreshLoginToken = async (
     } catch (error) {
         logWithMessageAndStep(childLogger, "Error Step", "Error during access token refreshing process", "refreshLoginToken", JSON.stringify(error), "error");
         return next(error);
+    }
+};
+
+
+const mockSendOtpRequest = async (otpData: any) => {
+    // Simulate a delay for async behavior
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Simulated response
+    const mockResponse = {
+        status: "success",
+        trxId: `trx_${Math.random().toString(36).substr(2, 9)}`,
+        message: "OTP sent successfully",
+    };
+
+    return mockResponse;
+};
+
+const mockVerifyOtpRequest = async (verifyOtpData: any) => {
+    // Simulate a delay for async behavior
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Simulated verification success/failure
+    const isSuccess = Math.random() < 0.8; // 80% chance of success
+
+    if (isSuccess) {
+        return {
+            status: "success",
+            message: "OTP verified successfully",
+        };
+    } else {
+        return null; // Simulate failure
     }
 };

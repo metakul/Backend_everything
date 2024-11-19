@@ -11,9 +11,9 @@ const router = express.Router({ mergeParams: true });
 
 /**
  * @swagger
- * /login:
+ * /passwordless/login:
  *   post:
- *     summary: User login
+ *     summary: User login with OTP
  *     tags: 
  *       - Common
  *     requestBody:
@@ -34,18 +34,55 @@ const router = express.Router({ mergeParams: true });
  *                 example: "password123"
  *     responses:
  *       200:
- *         description: User logged in successfully
+ *         description: OTP sent successfully
  *       400:
  *         description: Bad request
  *       500:
  *         description: Internal server error
  */
-router.post("/passwordless/login",
-    PasswordLessLogin.loginWithOtp);
+router.post("/passwordless/login", PasswordLessLogin.loginWithOtp);
 
 /**
  * @swagger
- * /profile:
+ * /passwordless/verifyOtp:
+ *   post:
+ *     summary: Verify OTP for login
+ *     tags: 
+ *       - Common
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *               trxId:
+ *                 type: string
+ *                 example: "trx_abc123xyz"
+ *               deviceId:
+ *                 type: string
+ *                 example: "device_12345"
+ *               identifier:
+ *                 type: string
+ *                 example: "user@example.com"
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: Invalid or expired OTP
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/passwordless/verifyOtp", PasswordLessLogin.verifyOtpLogin);
+
+/**
+ * @swagger
+ * /passwordless/profile:
  *   get:
  *     summary: Get user profile
  *     tags: 
@@ -58,19 +95,16 @@ router.post("/passwordless/login",
  *       500:
  *         description: Internal server error
  */
-router.get("/passwordless/profile",
-    checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User,UserCategory.SUPER_ADMIN,UserCategory.ROADIES_SUPER_ADMIN]),
-    // (req, res, next) => {
-    //     const identifierType = req.query.phoneNumber ? 'phoneNumber' : 'email';
-    //     ValidateApiKey(req, res, next, identifierType);
-    // },
+router.get(
+    "/passwordless/profile",
+    checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User, UserCategory.SUPER_ADMIN, UserCategory.ROADIES_SUPER_ADMIN]),
     checkUserCategoryExists,
-    // CheckPermission(ReadPermissionControl.can_read_profile),
-    CommonGetController.profile);
+    CommonGetController.profile
+);
 
 /**
  * @swagger
- * /refreshLoginToken:
+ * /passwordless/refreshLoginToken:
  *   post:
  *     summary: Refresh login token
  *     tags: 
@@ -83,10 +117,6 @@ router.get("/passwordless/profile",
  *       500:
  *         description: Internal server error
  */
-router.post("/passwordless/refreshLoginToken",
-    PasswordLessLogin.refreshLoginToken);
+router.post("/passwordless/refreshLoginToken", PasswordLessLogin.refreshLoginToken);
 
-
-
-
-    export default router;
+export default router;

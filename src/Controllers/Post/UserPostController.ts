@@ -16,7 +16,7 @@ import winston from 'winston';
  * add new user
  * @param userModelValidation
  */
-const addUser = async (userModelValidation: IUser, childLogger: any) => {
+export const addUser = async (userModelValidation: IUser, childLogger: any) => {
     try {
         logWithMessageAndStep(childLogger, "Step 8", "Adding User via PrismaDB", "register", JSON.stringify(userModelValidation), "debug")
 

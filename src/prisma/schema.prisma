@@ -22,6 +22,20 @@ model users {
   roleId         String?
   v              Int?      @ignore
 }
+model wiwusers {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  accountStatus  String
+  address        String
+  category       String
+  createdAt      DateTime  @default(now()) @map("createdAt")
+  email          String    @unique(map: "email_1")
+  name           String
+  phoneNumber    String    @unique(map: "phoneNumber_1")
+  updatedAt      DateTime  @updatedAt @map("updatedAt")
+  permissions    String[]
+  roleId         String?
+  v              Int?      @ignore
+}
 
 model superAdmin {
   id             String    @id @default(auto()) @map("_id") @db.ObjectId
