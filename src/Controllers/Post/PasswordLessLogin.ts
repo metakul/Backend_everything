@@ -255,7 +255,10 @@ export const verifyOtpLogin = async (
 
         res.status(200).json({
             message: "Login successful",
-            accessToken: accessToken.token,
+            token: {
+                accessToken,
+                refreshToken
+              },
         });
     } catch (error) {
         logWithMessageAndStep(
