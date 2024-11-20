@@ -21,10 +21,10 @@ export const addToCart = async (
       }
   
       const { email } = user; // Extract user email
-      const { id, name, quantity, image } = req.body; // Extract cart item details
+      const { id, name, quantity } = req.body; // Extract cart item details
   
       // Validate the fields
-      if (!id || !name || !quantity || !image) {
+      if (!id || !name || !quantity ) {
         return res.status(400).json({
           message: "Missing required item fields",
           statusCode: 400,
@@ -51,7 +51,7 @@ export const addToCart = async (
       const existingCartItems = (existingUser.cartItems || []) as InputJsonValue[];
 
       // Create a new item
-      const newItem: InputJsonValue = { id, name, quantity, image };
+      const newItem: InputJsonValue = { id, name, quantity };
   
       // Update the cartItems array
       const updatedCartItems: InputJsonValue[] = [...existingCartItems, newItem];
@@ -76,8 +76,6 @@ export const addToCart = async (
     }
   };
   
-
-
 /**
  * Fetch the user's cart
  */

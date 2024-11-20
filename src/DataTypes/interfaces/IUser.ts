@@ -3,6 +3,7 @@ import { UserCategory } from "../enums/IUserEnums";
 
 
 export interface IsystemAdmin {
+    id?: any;
     email: string;
     password: string;
     name: string
@@ -24,6 +25,8 @@ export interface IUser extends IloginUser {
 }
 
 export interface IUserWithDid extends IUser {
+    id: any;
+    phoneNumber: string;
     // api_key: string
     // publicKey?: string;
     // privateKey?: string;

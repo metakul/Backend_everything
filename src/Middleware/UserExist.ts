@@ -82,7 +82,7 @@ export const checkUserExists = async (
       throw ErrorEnum.UserNotFoundwithPhone(identifier);
     }
 
-    req.user = user as unknown as IUserWithDid | IsystemAdmin;
+    req.user = user  as IUserWithDid | IsystemAdmin;
     req.identifier = identifier;
 
     logWithMessageAndStep(childLogger, "Check User Step 4", "User found and added to request", "checkUserExists", JSON.stringify({ user: req.user }), "debug");

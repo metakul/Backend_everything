@@ -23,21 +23,31 @@ model users {
   v              Int?      @ignore
 }
 model wiwusers {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  accountStatus  String
-  address        String
-  category       String
-  createdAt      DateTime  @default(now()) @map("createdAt")
-  email          String    @unique(map: "email_1")
-  name           String
-  phoneNumber    String    @unique(map: "phoneNumber_1")
-  updatedAt      DateTime  @updatedAt @map("updatedAt")
-  permissions    String[]
-  roleId         String?
-  razorpayPayments String[] @default([])
-  cartItems Json[]
-  v              Int?      @ignore
+  id                     String                 @id @default(auto()) @map("_id") @db.ObjectId
+  accountStatus          String
+  address                String
+  category               String
+  createdAt              DateTime               @default(now()) @map("createdAt")
+  email                  String                 @unique(map: "email_1")
+  name                   String
+  phoneNumber            String                 @unique(map: "phoneNumber_1")
+  updatedAt              DateTime               @updatedAt @map("updatedAt")
+  permissions            String[]
+  roleId                 String?
+  razorpayPayments       String[]               @default([])
+  cartItems              Json[]
+  v                      Int?                   @ignore
 }
+
+model deliveryInstructions {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  paymentId   String
+  trackingId  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String    // Foreign key
+}
+
 
 model superAdmin {
   id             String    @id @default(auto()) @map("_id") @db.ObjectId

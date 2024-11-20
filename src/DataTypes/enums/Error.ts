@@ -9,6 +9,11 @@ export const ErrorEnum = {
         message: `Internal Server Error`,
         details: error
     }),
+    InvalidInput: (error?: unknown): ErrorObject => ({
+        statusCode: 400,
+        message: `Invalid Input Error`,
+        details: error
+    }),
     SignUpValidationError: (data: unknown): ErrorObject => ({
         statusCode: 400,
         message: `User validation Failed. Please Check the Form. Check '${data}'`,
