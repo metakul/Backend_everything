@@ -26,3 +26,11 @@ totalItemRemaining?:number;
 export function isJoiError(obj: any): obj is { isJoi: boolean } {
   return typeof obj === 'object' && obj !== null && 'isJoi' in obj;
 }
+
+export interface CartItem {
+  id: string;
+  quantity: number;
+  price?:any
+  name?:string
+  image?:string
+}

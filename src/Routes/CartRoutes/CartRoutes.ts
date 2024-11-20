@@ -8,6 +8,10 @@ const router = express.Router();
 
 router.post("/cart/add", checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User, UserCategory.SUPER_ADMIN, UserCategory.ROADIES_SUPER_ADMIN]),
     checkUserCategoryExists, CartController.addToCart);
+
+router.post("/cart/remove", checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User, UserCategory.SUPER_ADMIN, UserCategory.ROADIES_SUPER_ADMIN]),
+    checkUserCategoryExists, CartController.removeFromCart);
+    
 router.get("/cart", checkJwt([UserCategory.Verifier, UserCategory.Holder, UserCategory.User, UserCategory.SUPER_ADMIN, UserCategory.ROADIES_SUPER_ADMIN]),
     checkUserCategoryExists, CartController.fetchCart);
 

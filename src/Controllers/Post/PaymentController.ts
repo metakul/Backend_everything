@@ -9,7 +9,7 @@ import { createShipment } from "../../Utils/scripts/DelhiveryAPI.js";
 // Initialize Razorpay instance with public key (ensure you use environment variables in production)
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID as string,
-  key_secret:process.env.RAZORPAY_KEY_SECRET
+  key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
 // /**
@@ -60,6 +60,8 @@ export const addPaymentId = async (
     const user = req.user;
     const userId = user?.id;
 
+
+
     if (!user) {
       throw ErrorEnum.InternalserverError("Error validating User");
     }
@@ -79,47 +81,71 @@ export const addPaymentId = async (
       },
     });
 
+    const paymentDetails = await razorpay.payments.fetch(paymentId);
+
+    console.log("paymentDetails", paymentDetails);
+    const paymentNotes: any[] = Array.isArray(paymentDetails.notes) ? paymentDetails.notes : [];
+    // Extract products from the notes field
+    const products = paymentNotes?.map((note: string) => {
+      const product = JSON.parse(note);
+      return {
+        id: product.id,
+        name: product.name,
+        quantity: product.quantity,
+        price: product.price,
+      };
+    }) || [];
+
+    const contact = paymentDetails.contact; // Contact for the order
+    const description = paymentDetails.description; // Description for the address or additional info
+    const vpa = paymentDetails.vpa; // VPA (e.g., UPI ID)
+
+    // Static warehouse object
+    const warehouse = {
+      name: "Warehouse 1",
+      address: "123 Warehouse Street",
+      city: "Mumbai",
+      state: "Maharashtra",
+      pin: "400001",
+      email: "gauriRwat@gmail.com"
+    };
+
+    // Warehouse address from static object
+    const warehouseAddress = `${warehouse.address}, ${warehouse.city}, ${warehouse.state}, ${warehouse.pin}, India`;
+
     // Validate and schedule the delivery
     const {
-      products,
-      seller_details,
-      warehouse_details,
       consignee,
-      payment_mode,
     } = orderDetails;
 
-    if (
-      !products ||
-      !seller_details ||
-      !warehouse_details ||
-      !consignee ||
-      !payment_mode
-    ) {
+    if (!warehouse.email || !consignee) {
       throw new Error("Missing mandatory fields for scheduling delivery.");
     }
 
     const shipmentData = {
       title: `Shipment for Order ${paymentId}`,
       smses: [consignee.phone],
-      emails: [seller_details.email],
+      emails: [warehouse.email],
       order_id: paymentId,
       language: "en",
       pickup_note: "Please contact our staff for pickup.",
-      origin_city: warehouse_details.city,
-      origin_state: warehouse_details.state,
-      origin_postal_code: warehouse_details.pin,
+      origin_city: warehouse.city,
+      origin_state: warehouse.state,
+      origin_postal_code: warehouse.pin,
       origin_country_iso3: "IND",
-      origin_raw_location: `${warehouse_details.address}, ${warehouse_details.city}, ${warehouse_details.state}, ${warehouse_details.pin}, India`,
+      origin_raw_location: warehouseAddress, // Use the static warehouse address
       destination_city: consignee.city,
       destination_state: consignee.state,
       destination_postal_code: consignee.pin,
       destination_country_iso3: "IND",
       destination_raw_location: `${consignee.address}, ${consignee.city}, ${consignee.state}, ${consignee.pin}, India`,
+      payment_mode: "Prepaid",  // Added payment mode as "Prepaid"
+      package_type: "home_delivery",  // Added package type as "home_delivery"
     };
 
     const payload = {
       tracking_number: `WhatIWear-${paymentId}`,
-      pickup_location: warehouse_details.name,
+      pickup_location: warehouse.name,
       delivery_type: "pickup_at_store",
       order_promised_delivery_date: "2025-01-01",
       custom_fields: {
@@ -129,6 +155,8 @@ export const addPaymentId = async (
           .join(", "),
         total_weight: products.reduce((sum: number, p: any) => sum + p.weight, 0),
       },
+      payment_mode: "Prepaid",
+      package_type: "home_delivery",
     };
 
     const shipmentResponse = await createShipment(shipmentData, payload);
@@ -141,8 +169,13 @@ export const addPaymentId = async (
       data: {
         paymentId,
         trackingId,
-        userId
-       
+        userId,
+      },
+    });
+    await prisma.wiwusers.update({
+      where: { email },
+      data: {
+        cartItems: [],
       },
     });
 
@@ -160,8 +193,6 @@ export const addPaymentId = async (
 };
 
 
-
-
 /**
  * Get Razorpay Payment IDs
  */
@@ -171,29 +202,29 @@ export const getPaymentIds = async (
   next: NextFunction
 ) => {
   try {
-      const user = req.user;
+    const user = req.user;
 
-      if (!user) {
-          throw ErrorEnum.InternalserverError("Error validating User");
-      }
+    if (!user) {
+      throw ErrorEnum.InternalserverError("Error validating User");
+    }
 
-      const phoneNumber = (user as any).phoneNumber;
+    const phoneNumber = (user as any).phoneNumber;
 
-      const userInfo = await prisma.wiwusers.findUnique({
-          where: {phoneNumber: phoneNumber },
-          select: {
-              razorpayPayments: true, // Fetch only the Razorpay payments array
-          },
-      });
+    const userInfo = await prisma.wiwusers.findUnique({
+      where: { phoneNumber: phoneNumber },
+      select: {
+        razorpayPayments: true, // Fetch only the Razorpay payments array
+      },
+    });
 
 
-      return res.status(200).json({
-          message: "Razorpay Payment IDs fetched successfully",
-          data: userInfo,
-          statusCode: 200,
-      });
+    return res.status(200).json({
+      message: "Razorpay Payment IDs fetched successfully",
+      data: userInfo,
+      statusCode: 200,
+    });
   } catch (error) {
-      return next(error);
+    return next(error);
   }
 };
 
@@ -217,13 +248,13 @@ export const fetchPaymentDetails = async (
 
     // Fetch payment details using Razorpay API
     const paymentDetails = await razorpay.payments.fetch(paymentId);
-    
-    console.log("paymentDetails",paymentDetails);
+
+    console.log("paymentDetails", paymentDetails);
 
     res.status(200).json(paymentDetails);
   } catch (error) {
     console.log(error);
-    
+
     next(error);
   }
 };
