@@ -102,12 +102,12 @@ export const addPaymentId = async (
 
     // Static warehouse object
     const warehouse = {
-      name: "Warehouse 1",
-      address: "123 Warehouse Street",
-      city: "Mumbai",
-      state: "Maharashtra",
-      pin: "400001",
-      email: "gauriRwat@gmail.com"
+      name: "Roadies 1",
+      address: "Sunil Rawat, Gurudwara Road",
+      city: "Srinagar Garhwal",
+      state: "Uttarakhand",
+      pin: "246174",
+      email: "gaurirawat@gmail.com"
     };
 
     // Warehouse address from static object
