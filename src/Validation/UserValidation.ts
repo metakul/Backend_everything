@@ -1,6 +1,6 @@
 import {  IsystemAdmin, IUser } from "../DataTypes/interfaces/IUser";
 import { encryptPassword } from "../Utils/scripts/encryptPassword.js";
-import {InitSuperAdminSchema, LoginUser, RegisterUserSchema, ResetPasswordSchema, UpdatePasswordSchema, UserUpdateScehma } from "../Schema/UserScehema.js";
+import {InitSuperAdminSchema, LoginUser, RegisterPasswordLessUserSchema, RegisterUserSchema, ResetPasswordSchema, UpdatePasswordSchema, UserUpdateScehma } from "../Schema/UserScehema.js";
 import { MongooseError } from "../DataTypes/enums/Error.js";
 import { logWithMessageAndStep } from "../Helpers/Logger/logger.js";
 import winston from "winston";
@@ -49,6 +49,21 @@ export const UserValidation = {
     }
   }
 };
+export const PasswordLessUserValidation = {
+  async validateAsync(data: IUser,childLogger:any) {
+    logWithMessageAndStep(childLogger,"Step 2","Validating Form Input schema","register",JSON.stringify(data),"info")
+    
+    const parsed = RegisterPasswordLessUserSchema.safeParse(data);
+    logWithMessageAndStep(childLogger,"Step 3","Validated Data After zod schema check","register",JSON.stringify(parsed),"debug")
+    if (parsed.success) {
+      return parsed.data as IUser;
+    }
+    else{
+      logWithMessageAndStep(childLogger,"Error Step","Failed Validating User","register",JSON.stringify(data),"warn")
+      throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path)
+    }
+  }
+};
 
 export const UpdateUserValidation = {
   async validateAsync(data: IUser,childLogger:winston.Logger ) {
@@ -75,7 +90,7 @@ export const LoginValidation = {
 
       if (parsed.success) {
           logWithMessageAndStep(childLogger, "Step 4", "Validation successful", "validateAsync", JSON.stringify(data.email), "info");
-          return data;
+          return parsed.data;
       } else {
           logWithMessageAndStep(childLogger, "Error Step", "Validation failed", "validateAsync", JSON.stringify(parsed.error.issues), "warn");
           throw MongooseError.InvalidDataTypes(parsed.error.issues[0].message, parsed.error.issues[0].path);

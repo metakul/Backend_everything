@@ -95,10 +95,11 @@ export const getTrackingInfo = async (trackingId: string) => {
     const url = `https://api.aftership.com/tracking/2024-10/trackings/${trackingId}`;
     const headers = {
       "Content-Type": "application/json",
-      "as-api-key": "asat_46480e0fb69341189daed66d1eb642fb",
+      "as-api-key": process.env.AFTERSHIP_API_KEY,
     };
 
     const response = await axios.get(url, { headers });
+
     return response.data;
   } catch (error) {
     console.error("Error getting tracking information:", error);

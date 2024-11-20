@@ -9,8 +9,7 @@ import { otpPurpose } from "../../DataTypes/enums/IUserEnums.js";
 import { LoginUserRequest } from "src/Middleware/UserExist.js";
 import { ErrorEnum, MongooseError } from "../../DataTypes/enums/Error.js";
 import { IUser } from "../../DataTypes/interfaces/IUser.js";
-import { UserValidation } from "../../Validation/UserValidation.js";
-
+import { PasswordLessUserValidation, UserValidation } from "../../Validation/UserValidation.js";
 
 /**
  * add new user
@@ -63,8 +62,8 @@ export const loginWithOtp = async (
         );
 
         // Fetch user by phone number
-        let user = await prisma.wiwusers.findUnique({
-            where: { phoneNumber: phoneNumber },
+        const user = await prisma.wiwusers.findUnique({
+            where: { phoneNumber },
             select: {
                 id: true,
                 email: true,
@@ -74,57 +73,8 @@ export const loginWithOtp = async (
             },
         });
 
-        // If user does not exist, create a new one
         if (!user) {
-            logWithMessageAndStep(
-                childLogger,
-                "Step 1.1",
-                "User not found, creating new user",
-                "loginWithOtp",
-                JSON.stringify(req.body),
-                "info"
-            );
-            // Validate user input
-            const userModelValidation: IUser | undefined = await UserValidation.validateAsync(req.body, childLogger);
-
-            if (!userModelValidation) {
-                throw ErrorEnum.SignUpValidationError(JSON.stringify(req.body));
-            }
-
-            // Check if phone number is available
-            const isPhoneNoAvailable = await prisma.wiwusers.findUnique({
-                where: { phoneNumber: String(userModelValidation.phoneNumber) },
-            });
-            logWithMessageAndStep(childLogger, "Step 5", "Checking if phone is available", "register", JSON.stringify(!isPhoneNoAvailable), "debug");
-
-            if (isPhoneNoAvailable) {
-                throw ErrorEnum.SignUpValidationError(userModelValidation.phoneNumber);
-            }
-
-            // Check if email is available
-            const isEmailNoAvailable = await prisma.wiwusers.findUnique({
-                where: { email: String(userModelValidation.email) },
-            });
-            logWithMessageAndStep(childLogger, "Step 6", "Checking if email is available", "register", JSON.stringify(!isEmailNoAvailable), "debug");
-
-            if (isEmailNoAvailable) {
-                throw ErrorEnum.SignUpValidationError(userModelValidation.email);
-            }
-
-            // Register the user
-            logWithMessageAndStep(childLogger, "Step 7", "Sending data to Prisma DB for user registration", "register", JSON.stringify(userModelValidation), "info");
-
-            user = await addUser(userModelValidation, childLogger)
-
-
-            logWithMessageAndStep(
-                childLogger,
-                "Step 1.2",
-                "New user created successfully",
-                "loginWithOtp",
-                JSON.stringify(user),
-                "info"
-            );
+            return next(ErrorEnum.UserNotFoundwithPhone(phoneNumber));
         }
 
         // Send OTP
@@ -135,7 +85,6 @@ export const loginWithOtp = async (
             user: user.name,
         };
 
-        // const otpResponse = await sendOtpRequest(otpData);
         const otpResponse = await mockSendOtpRequest(otpData);
 
         logWithMessageAndStep(
@@ -312,7 +261,6 @@ export const refreshLoginToken = async (
     }
 };
 
-
 const mockSendOtpRequest = async (otpData: any) => {
     // Simulate a delay for async behavior
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -341,5 +289,79 @@ const mockVerifyOtpRequest = async (verifyOtpData: any) => {
         };
     } else {
         return null; // Simulate failure
+    }
+};
+
+export const registerUser = async (
+    req: LoginUserRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    const childLogger = (req as any).childLogger as winston.Logger;
+
+    if (!childLogger) {
+        return next(new Error("Internal Server Error"));
+    }
+    try {
+        logWithMessageAndStep(
+            childLogger,
+            "Step 1",
+            "Initiating user registration",
+            "registerUser",
+            JSON.stringify(req.body),
+            "info"
+        );
+
+        // Validate user input
+        const userModelValidation: IUser | undefined = await PasswordLessUserValidation.validateAsync(req.body, childLogger);
+
+        if (!userModelValidation) {
+            throw ErrorEnum.SignUpValidationError(JSON.stringify(req.body));
+        }
+
+        // Check if phone number is available
+        const isPhoneNoAvailable = await prisma.wiwusers.findUnique({
+            where: { phoneNumber: String(userModelValidation.phoneNumber) },
+        });
+
+        if (isPhoneNoAvailable) {
+            throw ErrorEnum.SignUpValidationError(userModelValidation.phoneNumber);
+        }
+
+        // Check if email is available
+        const isEmailNoAvailable = await prisma.wiwusers.findUnique({
+            where: { email: String(userModelValidation.email) },
+        });
+
+        if (isEmailNoAvailable) {
+            throw ErrorEnum.SignUpValidationError(userModelValidation.email);
+        }
+
+        // Register the user
+        const newUser = await addUser(userModelValidation, childLogger);
+
+        logWithMessageAndStep(
+            childLogger,
+            "Step 2",
+            "User registered successfully",
+            "registerUser",
+            JSON.stringify(newUser),
+            "info"
+        );
+
+        res.status(201).json({
+            message: "User registered successfully",
+            data: newUser,
+        });
+    } catch (error) {
+        logWithMessageAndStep(
+            childLogger,
+            "Error Step",
+            "Error during user registration",
+            "registerUser",
+            JSON.stringify(error),
+            "error"
+        );
+        return next(error);
     }
 };
