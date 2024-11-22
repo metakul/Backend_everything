@@ -32,7 +32,30 @@ export const getBlock = async (req: Request, res: Response, next: NextFunction) 
             const serializedBlock = serializeBigInt(block);
             res.status(200).json(serializedBlock);
         } else {
-            res.status(404).json({ error: 'Block not foundss' });
+            res.status(404).json({ error: 'Block not found' });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+export const getBlockWithTrx = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { providerUrl } = req.body; // Get provider URL from request body
+       
+        if (!providerUrl) {
+            throw BlockchainError.MissingProviderUrl();
+        }
+
+        initializeBlockchainSDK(providerUrl, 'ethers'); // You can set it to 'ethers' if needed
+
+        const blockNumber = req.params.blockNumber === 'latest' ? 'latest' : parseInt(req.params.blockNumber);
+        const block = await blockchainSDK?.getBlockWithTransactions(blockNumber);
+        if (block) {
+            // Serialize BigInt properties
+            const serializedBlock = serializeBigInt(block);
+            res.status(200).json(serializedBlock);
+        } else {
+            res.status(404).json({ error: 'Block trx not found' });
         }
     } catch (error) {
         next(error);
@@ -161,7 +184,6 @@ export const getAllTransactionsInPreviousBlocks = async (req: Request, res: Resp
     }
 };
 
-
 // Get transaction by hash
 export const getTransaction = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -238,7 +260,6 @@ export const getAddressDetails = async (req: Request, res: Response, next: NextF
     }
 };
 
-
 // Get Network Statistics
 export const getNetworkStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -260,3 +281,28 @@ export const getNetworkStats = async (req: Request, res: Response, next: NextFun
         next(error);
     }
 };
+
+export const getBlocksInTimeFrame = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { providerUrl } = req.body;
+        const { startBlock, blocksPerPage } = req.body; 
+
+        if (!providerUrl) {
+            throw BlockchainError.MissingProviderUrl();
+        }
+
+        initializeBlockchainSDK(providerUrl, 'ethers');
+        console.log('info', `Fetching blocks from ${startBlock} with ${blocksPerPage} blocks per page`);
+        const blocks = await blockchainSDK?.loadBlocksInTimeFrame(parseInt(startBlock), parseInt(blocksPerPage));
+        if (blocks) {
+            // Serialize BigInt properties
+            const serializedBlocks = blocks.map(block => serializeBigInt(block));
+            res.status(200).json(serializedBlocks);
+        } else {
+            res.status(404).json({ error: 'Blocks not found' });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+

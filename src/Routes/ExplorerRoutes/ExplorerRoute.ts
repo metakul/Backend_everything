@@ -7,6 +7,8 @@ const router = express.Router({ mergeParams: true });
 // Route to get block details by number or 'latest'
 router.post('/block/:blockNumber', BlockchainController.getBlock);
 
+router.post('/getBlockWithTrx/:blockNumber', BlockchainController.getBlockWithTrx);
+
 // Route to get transaction details by hash
 router.post('/transaction/:txHash', BlockchainController.getTransaction);
 
@@ -26,5 +28,7 @@ router.post('/block/transactions/:blockNumber', BlockchainController.getTransact
 router.post('/block/allTransactions/:requiredTransactions', BlockchainController.getAllTransactionsInPreviousBlocks);
 
 router.post('/stats', BlockchainController.getNetworkStats);
+
+router.post('/blocksInFrame', BlockchainController.getBlocksInTimeFrame);
 
 export default router;
