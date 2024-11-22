@@ -38,6 +38,7 @@ export const addUser = async (userModelValidation: IUser, childLogger: any) => {
     }
 };
 
+
 export const loginWithOtp = async (
     req: LoginUserRequest,
     res: Response,
@@ -61,8 +62,9 @@ export const loginWithOtp = async (
             "info"
         );
 
-        // Fetch user by phone number
-        const user = await prisma.wiwusers.findUnique({
+        // Fetch user by phone number"
+        let user
+        user = await prisma.wiwusers.findUnique({
             where: { phoneNumber },
             select: {
                 id: true,
@@ -73,8 +75,29 @@ export const loginWithOtp = async (
             },
         });
 
+        // If user is not found, save the user
         if (!user) {
-            return next(ErrorEnum.UserNotFoundwithPhone(phoneNumber));
+
+            user = await prisma.unverifiedWiwUsers.findUnique({
+                where: { phoneNumber },
+                select: { id: true, phoneNumber: true },
+            });
+            if (!user) {
+                user = await prisma.unverifiedWiwUsers.create({
+                    data: {
+                        phoneNumber: phoneNumber,
+                    }
+                });
+            }
+
+            logWithMessageAndStep(
+                childLogger,
+                "Step 2",
+                "User registered successfully",
+                "loginWithOtp",
+                JSON.stringify(user),
+                "info"
+            );
         }
 
         // Send OTP
@@ -82,14 +105,13 @@ export const loginWithOtp = async (
             purpose: otpPurpose.LOGIN,
             phoneNumber,
             deviceId,
-            user: user.name,
         };
 
         const otpResponse = await mockSendOtpRequest(otpData);
 
         logWithMessageAndStep(
             childLogger,
-            "Step 2",
+            "Step 3",
             "OTP sent successfully",
             "loginWithOtp",
             JSON.stringify(otpResponse),
@@ -138,9 +160,7 @@ export const verifyOtpLogin = async (
 
         // Verify OTP
         const verifyOtpData = { otp, trxId, deviceId };
-        // const otpVerified = await verifyOtpRequest(verifyOtpData);
         const otpVerified = await mockVerifyOtpRequest(verifyOtpData);
-        console.log(otpVerified);
 
         if (!otpVerified) {
             logWithMessageAndStep(
@@ -154,24 +174,42 @@ export const verifyOtpLogin = async (
             return res.status(400).json({ error: "Invalid or expired OTP" });
         }
 
-        // Fetch user details
-        let user
-        if (phoneNumber) {
+        // Fetch user details from wiwusers
+        let user = await prisma.wiwusers.findUnique({
+            where: { phoneNumber },
+            select: {
+                id: true,
+                phoneNumber: true,
+                category: true,
+                address: true,
+                email: true,
+                name: true,
+            },
+        });
 
-            user = await prisma.wiwusers.findUnique({
-                where: { phoneNumber: phoneNumber },
-                select: {
-                    id: true,
-                    phoneNumber: true,
-                    category: true,
-                    address: true,
-                    email: true,
-                    name: true,
-                },
-            });
-        }
-
+        // If not in wiwusers, check unverifiedWiwUsers
         if (!user) {
+            const unverifiedUser = await prisma.unverifiedWiwUsers.findUnique({
+                where: { phoneNumber },
+                select: { id: true, phoneNumber: true },
+            });
+
+            if (unverifiedUser) {
+                logWithMessageAndStep(
+                    childLogger,
+                    "Step 2",
+                    "User is unverified",
+                    "verifyOtpLogin",
+                    JSON.stringify(unverifiedUser),
+                    "info"
+                );
+
+                return res.status(200).json({
+                    data: unverifiedUser,
+                    message: "OTP verified successfully"
+                });
+            }
+
             logWithMessageAndStep(
                 childLogger,
                 "Error Step",
@@ -183,34 +221,36 @@ export const verifyOtpLogin = async (
             return res.status(404).json({ error: "User not found" });
         }
 
-        // Generate JWT tokens
+        // Generate JWT tokens for verified users
         const { accessToken, refreshToken } = await generateTokens(user, true);
 
         logWithMessageAndStep(
             childLogger,
-            "Step 2",
+            "Step 3",
             "JWT token generated",
             "verifyOtpLogin",
             JSON.stringify(user),
             "info"
         );
 
-        if (refreshToken) {
-            res.cookie("refresh_token", refreshToken.token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-            });
-        }
+        // Set refresh token in cookies
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+        });
 
-        res.status(200).json({data: {
-            name: user.name,
-            token: {
-              accessToken,
-              refreshToken
+        // Send response
+        res.status(200).json({
+            data: {
+                name: user.name,
+                token: {
+                    accessToken,
+                    refreshToken,
+                },
+                email: user.email,
+                category: user.category,
             },
-            email: user.email,
-            category: user.category,
-          }});
+        });
     } catch (error) {
         logWithMessageAndStep(
             childLogger,
@@ -280,7 +320,7 @@ const mockVerifyOtpRequest = async (verifyOtpData: any) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Simulated verification success/failure
-    const isSuccess =true
+    const isSuccess = true
 
     if (isSuccess) {
         return {
@@ -327,6 +367,15 @@ export const registerUser = async (
         if (isPhoneNoAvailable) {
             throw ErrorEnum.SignUpValidationError(userModelValidation.phoneNumber);
         }
+        
+        
+        const isVerifiedUser=await prisma.unverifiedWiwUsers.findUnique({
+            where: { phoneNumber: userModelValidation.phoneNumber },
+        });
+
+        if (!isVerifiedUser) {
+            throw ErrorEnum.SignUpValidationError(` ${userModelValidation.phoneNumber} not verified yet via otp`);
+        }
 
         // Check if email is available
         const isEmailNoAvailable = await prisma.wiwusers.findUnique({
@@ -336,6 +385,10 @@ export const registerUser = async (
         if (isEmailNoAvailable) {
             throw ErrorEnum.SignUpValidationError(userModelValidation.email);
         }
+
+        await prisma.unverifiedWiwUsers.deleteMany({
+            where: { phoneNumber: userModelValidation.phoneNumber },
+        });
 
         // Register the user
         const newUser = await addUser(userModelValidation, childLogger);
@@ -349,9 +402,35 @@ export const registerUser = async (
             "info"
         );
 
+        // Generate JWT tokens
+        const { accessToken, refreshToken } = await generateTokens(newUser, true);
+
+        logWithMessageAndStep(
+            childLogger,
+            "Step 3",
+            "JWT token generated for registered user",
+            "registerUser",
+            JSON.stringify(newUser),
+            "info"
+        );
+
+        // Set refresh token in cookies
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+        });
+
+        // Send response
         res.status(201).json({
-            message: "User registered successfully",
-            data: newUser,
+            data: {
+                name: newUser.name,
+                token: {
+                    accessToken,
+                    refreshToken,
+                },
+                email: newUser.email,
+                category: newUser.category,
+            },
         });
     } catch (error) {
         logWithMessageAndStep(

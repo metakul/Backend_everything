@@ -16,7 +16,7 @@ export const ErrorEnum = {
     }),
     SignUpValidationError: (data: unknown): ErrorObject => ({
         statusCode: 400,
-        message: `User validation Failed. Please Check the Form. Check '${data}'`,
+        message: `Not Availabale '${data}'`,
         details: ""
     }),
     MissingEmail: (): ErrorObject => ({

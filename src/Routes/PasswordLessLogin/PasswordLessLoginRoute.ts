@@ -9,6 +9,11 @@ import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 
 const router = express.Router({ mergeParams: true });
 
+
+
+router.post("/passwordless/registerUser", PasswordLessLogin.registerUser);
+
+
 /**
  * @swagger
  * /passwordless/login:

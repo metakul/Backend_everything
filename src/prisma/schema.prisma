@@ -38,6 +38,13 @@ model wiwusers {
   cartItems              Json[]
   v                      Int?                   @ignore
 }
+model unverifiedWiwUsers {
+  id                     String                 @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt              DateTime               @default(now()) @map("createdAt")
+  phoneNumber            String                 @unique(map: "phoneNumber_1")
+  updatedAt              DateTime               @updatedAt @map("updatedAt")
+  v                      Int?                   @ignore
+}
 
 model deliveryInstructions {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
