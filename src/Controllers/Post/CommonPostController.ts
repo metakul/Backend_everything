@@ -25,7 +25,7 @@ export const login = async (
         return next(new Error('Internal Server Error'));
     }
 
-    const { password,deviceId } = req.body;
+    const { password, deviceId } = req.body;
     const userInfo = req.user;
     const identifier = req.identifier
     try {
@@ -53,7 +53,7 @@ export const login = async (
                         password: true
                     },
                 });
-    
+
                 if (!user) {
                     user = await prisma.users.findUnique({
                         where: { email: identifier },
@@ -97,17 +97,19 @@ export const login = async (
 
             logWithMessageAndStep(childLogger, "Step 3", "OTP SUCCESSFULLY SENT", "login", JSON.stringify(user), "debug");
 
-            const {accessToken,refreshToken} = generateTokens(user, true);
+            const { accessToken, refreshToken } = generateTokens(user, true);
 
-            user && res.status(201).json({data: {
-        name: user.name,
-        token: {
-          accessToken,
-          refreshToken
-        },
-        email: user.email,
-        category: user.category,
-      }});
+            user && res.status(201).json({
+                data: {
+                    name: user.name,
+                    token: {
+                        accessToken,
+                        refreshToken
+                    },
+                    email: user.email,
+                    category: user.category,
+                }
+            });
         } else {
             logWithMessageAndStep(childLogger, "Error Step", "User validation failed", "login", "User not found", "error");
             throw ErrorEnum.InternalserverError("Error validating User");
@@ -134,18 +136,18 @@ export const verifyLogin = async (
     try {
         if (user) {
             logWithMessageAndStep(childLogger, "Step 1", "Reading otp from Body", "verifyLogin", JSON.stringify(req.body), "info");
-           
+
             const verifyOtpData = { otp, trxId, deviceId };
 
             logWithMessageAndStep(childLogger, "Step 2", "Verifying otp ", "verifyLogin", JSON.stringify(req.body), "info");
 
             //verifies login otp
-             await verifyOtpRequest(verifyOtpData);
+            await verifyOtpRequest(verifyOtpData);
 
-            const {accessToken,refreshToken} = generateTokens(user, true);
+            const { accessToken, refreshToken } = generateTokens(user, true);
 
             logWithMessageAndStep(childLogger, "Step 3", "JWT token generated", "verifyLogin", JSON.stringify(user.email), "debug");
-            
+
             res.cookie("refresh_token", refreshToken?.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
@@ -209,17 +211,17 @@ export const sendOtp = async (
     }
 
     const { deviceId, purpose } = req.body;
-    const user= req.user
+    const user = req.user
 
     try {
         logWithMessageAndStep(childLogger, "Step 1", "Reading phone number and device ID from body", "sendOtp", JSON.stringify(req.body), "info");
         let otpData
-        
-        if (user ) {
+
+        if (user) {
             otpData = {
                 purpose,
                 deviceId,
-                 user: user.name
+                user: user.name
             };
         }
 
@@ -228,7 +230,7 @@ export const sendOtp = async (
         logWithMessageAndStep(childLogger, "Step 2", "OTP sent successfully", "sendOtp", JSON.stringify(response), "debug");
 
         res.status(200).json(
-             response,
+            response,
         );
     } catch (error) {
         logWithMessageAndStep(childLogger, "Error Step", "Error during OTP sending process", "sendOtp", JSON.stringify(error), "error");
@@ -264,7 +266,7 @@ export const verifyOtp = async (
 
         res.status(200).json(
             response,
-         );
+        );
     } catch (error) {
         logWithMessageAndStep(childLogger, "Error Step", "Error during OTP verification process", "verifyOtp", JSON.stringify(error), "error");
 
@@ -469,35 +471,35 @@ export const updatePassword = async (
         logWithMessageAndStep(childLogger, "Step 1", "Reading request body", "updatePassword", JSON.stringify(req.body), "info");
 
         // Validate the reset password request body
-        if(user){
-            const {email,password}=user
-        await UpdatePasswordValidation.validateAsync({ currentPassword, newPassword, confirmPassword,email }, childLogger);
+        if (user) {
+            const { email, password } = user
+            await UpdatePasswordValidation.validateAsync({ currentPassword, newPassword, confirmPassword, email }, childLogger);
 
-        // Compare current password
-        const isCurrentPasswordMatch = await bcrypt.compare(currentPassword, password);
-        logWithMessageAndStep(childLogger, "Step 2", "Comparing current password", "updatePassword", JSON.stringify(isCurrentPasswordMatch), "debug");
+            // Compare current password
+            const isCurrentPasswordMatch = await bcrypt.compare(currentPassword, password);
+            logWithMessageAndStep(childLogger, "Step 2", "Comparing current password", "updatePassword", JSON.stringify(isCurrentPasswordMatch), "debug");
 
-        if (!isCurrentPasswordMatch) {
-            logWithMessageAndStep(childLogger, "Error Step", "Current password mismatch", "updatePassword", email, "warn");
-            throw ErrorEnum.UserPasswordError(email);
-        }
+            if (!isCurrentPasswordMatch) {
+                logWithMessageAndStep(childLogger, "Error Step", "Current password mismatch", "updatePassword", email, "warn");
+                throw ErrorEnum.UserPasswordError(email);
+            }
 
-        // Hash new password
-        const hashedPassword = await encryptPassword(newPassword, childLogger);
-        logWithMessageAndStep(childLogger, "Step 3", "New password hashed", "updatePassword", JSON.stringify(hashedPassword), "debug");
+            // Hash new password
+            const hashedPassword = await encryptPassword(newPassword, childLogger);
+            logWithMessageAndStep(childLogger, "Step 3", "New password hashed", "updatePassword", JSON.stringify(hashedPassword), "debug");
 
-        // Save new password to user record
-        await prisma.users.update({
-            where: { email: email },
-            data: { password: hashedPassword },
-        });
+            // Save new password to user record
+            await prisma.users.update({
+                where: { email: email },
+                data: { password: hashedPassword },
+            });
 
-        logWithMessageAndStep(childLogger, "Step 4", "New password saved to user record", "updatePassword", email, "info");
+            logWithMessageAndStep(childLogger, "Step 4", "New password saved to user record", "updatePassword", email, "info");
 
-        // Generate new JWT token
-        logWithMessageAndStep(childLogger, "Step 5", "JWT token generated", "updatePassword", JSON.stringify(email), "debug");
+            // Generate new JWT token
+            logWithMessageAndStep(childLogger, "Step 5", "JWT token generated", "updatePassword", JSON.stringify(email), "debug");
 
-        res.status(200).json({
+            res.status(200).json({
                 name: user.name,
                 email: user.email,
             });

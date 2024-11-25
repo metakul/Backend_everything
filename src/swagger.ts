@@ -16,6 +16,20 @@ const swaggerOptions = {
       },
       servers: [`http://localhost:${PORT}`],
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT', // Optional, specifies the format
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [], // Applies globally to all endpoints
+      },
+    ],
     servers: [
       {
         url: "/v1", // This will automatically prefix /v1 to all paths

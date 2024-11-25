@@ -64,7 +64,7 @@ export const getBlockWithTrx = async (req: Request, res: Response, next: NextFun
 
 export const getPreviousBlocks = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { providerUrl } = req.body; // Get provider URL from request body
+        const { providerUrl } = req.body; 
         const { numberOfBlocks } = req.params; // Number of previous blocks to retrieve
 
         if (!providerUrl) {
@@ -101,7 +101,7 @@ export const getPreviousBlocks = async (req: Request, res: Response, next: NextF
 // Get all transactions in a specific block
 export const getTransactionsInBlock = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { providerUrl } = req.body; // Get provider URL from request body
+        const { providerUrl } = req.body; 
         const blockNumberParam = req.params.blockNumber; // Block number to retrieve transactions from
 
         if (!providerUrl) {

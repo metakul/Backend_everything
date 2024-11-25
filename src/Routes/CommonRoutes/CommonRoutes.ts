@@ -2,12 +2,12 @@ import express from "express";
 import { checkUserExists } from "../../Middleware/UserExist.js";
 import { checkUserCategoryExists } from "../../Middleware/IfUserCategoryExist.js";
 // import { ValidateApiKey } from "../../Middleware/ValidateApiKey.js";
-import CheckPermission from "../../Middleware/CheckPermission.js";
-import { ReadPermissionControl } from "../../DataTypes/rbac/permission.js";
+// import CheckPermission from "../../Middleware/CheckPermission.js";
+// import { ReadPermissionControl } from "../../DataTypes/rbac/permission.js";
 import checkJwt from "../../Middleware/checkJwt.js";
 import * as CommonController from "../../Controllers/Post/CommonPostController.js";
 import * as CommonGetController from "../../Controllers/Get/CommonGetController.js";
-import { checkIdentifier } from "../../Middleware/CheckIdentifier.js";
+// import { checkIdentifier } from "../../Middleware/CheckIdentifier.js";
 import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 
 const router = express.Router({ mergeParams: true });
@@ -58,11 +58,13 @@ router.post("/login",
  *     summary: Get user profile
  *     tags: 
  *       - Common
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: User profile retrieved successfully
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized - Invalid or missing token
  *       500:
  *         description: Internal server error
  */
@@ -108,12 +110,12 @@ router.post("/refreshLoginToken",
  *           schema:
  *             type: object
  *             properties:
- *               phoneNumber:
+ *               deviceId:
  *                 type: string
- *                 example: "1234567890"
- *               email:
+ *                 example: "1234-5678-9012"
+ *               purpose:
  *                 type: string
- *                 example: "user@example.com"
+ *                 example: "login"
  *     responses:
  *       200:
  *         description: OTP sent successfully
@@ -141,12 +143,12 @@ router.post("/sendOtp", (req, res, next) => {
  *           schema:
  *             type: object
  *             properties:
- *               phoneNumber:
+ *               deviceId:
  *                 type: string
  *                 example: "1234567890"
- *               email:
+ *               trxId:
  *                 type: string
- *                 example: "user@example.com"
+ *                 example: ""
  *               otp:
  *                 type: string
  *                 example: "123456"
@@ -177,10 +179,10 @@ router.post("/verifyOtp", (req, res, next) => {
  *           schema:
  *             type: object
  *             properties:
- *               phoneNumber:
+ *               deviceId:
  *                 type: string
  *                 example: "1234567890"
- *               email:
+ *               trxId:
  *                 type: string
  *                 example: "user@example.com"
  *     responses:
