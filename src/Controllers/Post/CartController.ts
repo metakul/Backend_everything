@@ -21,7 +21,7 @@ export const addToCart = async (
     }
 
     const { email } = user; // Extract user email
-    const { id, name, quantity } = req.body; // Extract cart item details
+    const { id, name, size,quantity } = req.body; // Extract cart item details
 
     // Validate the fields
     if (!id || !name || !quantity) {
@@ -58,7 +58,7 @@ export const addToCart = async (
       existingCartItems[itemIndex].quantity += 1;
     } else {
       // If the item doesn't exist, add it as a new item
-      const newItem: InputJsonValue = { id, name, quantity };
+      const newItem: InputJsonValue = { id, name, quantity,size };
       existingCartItems.push(newItem);
     }
 
@@ -194,6 +194,7 @@ export const fetchCart = async (
 
 /**
  * Empty the user's cart
+ * @dev
  */
 export const emptyCart = async (
   req: LoginUserRequest,

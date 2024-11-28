@@ -93,6 +93,7 @@ export const addPaymentId = async (
         name: product.name,
         quantity: product.quantity,
         price: product.price,
+        size: product.size,
       };
     }) || [];
 
@@ -107,7 +108,7 @@ export const addPaymentId = async (
       city: "Srinagar Garhwal",
       state: "Uttarakhand",
       pin: "246174",
-      email: "gaurirawat@gmail.com"
+      email: "founders@whatIWear.com"
     };
 
     // Warehouse address from static object
@@ -151,7 +152,7 @@ export const addPaymentId = async (
       custom_fields: {
         fragile: "No",
         product_description: products
-          .map((p: any) => `${p.quantity}x ${p.name}`)
+          .map((p: any) => `${p.quantity}x ${p.name} x ${p.size}`)
           .join(", "),
         total_weight: products.reduce((sum: number, p: any) => sum + p.weight, 0),
       },
