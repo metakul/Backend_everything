@@ -13,20 +13,30 @@ import { DropShipsError } from "../../DataTypes/enums/Error.js";
  */
 const addDropShip = async (dropShipModelValidation: IdropShip) => {
   try {
+    // Create the dropShip first
     const dropShip = await prisma.dropShips.create({
-        data: {
-          title: dropShipModelValidation.title,
-          description: dropShipModelValidation.description || '',
-          image: dropShipModelValidation.image,
-          author: dropShipModelValidation.author,
-          categories: dropShipModelValidation.categories,
-          price: dropShipModelValidation.price,
-          totalItemRemaining: dropShipModelValidation.totalItemRemaining,
-          status: DropShipsStatusInfo.PENDING
-        },
-      });
-    return dropShip;
+      data: {
+        title: dropShipModelValidation.title,
+        description: dropShipModelValidation.description || '',
+        image: dropShipModelValidation.image,
+        author: dropShipModelValidation.author,
+        categories: dropShipModelValidation.categories,
+        price: dropShipModelValidation.price,
+        totalItemRemaining: dropShipModelValidation.totalItemRemaining,
+        status: DropShipsStatusInfo.PENDING,
+      },
+    });
 
+    // Then create the sizes with the dropShipId
+    const sizes = await prisma.size.createMany({
+      data: dropShipModelValidation.sizes.map(size => ({
+        sizeName: size.sizeName,
+        totalItems: size.totalItems,
+        dropShipId: dropShip.id, // Ensure dropShipId is set correctly
+      })),
+    });
+
+    return { ...dropShip, sizes };
   } catch (error) {
     console.log(error);
     throw DropShipsError.ErrorAddingDropShip();
@@ -95,10 +105,18 @@ export const getAllDropShipsByStatus = async (
       orderBy: {
         updatedAt: 'desc', // Sort by latest updates first
       },
+      include: {
+        sizes: true, // Include the related sizes
+      },
     });
 
-    if (dropShips.length > 0) {
-      res.status(200).json(dropShips);
+    // Filter out drop ships where all sizes have totalItems == 0
+    const filteredDropShips = dropShips.filter(dropShip =>
+      dropShip.sizes.some(size => size.totalItems > 0)
+    );
+
+    if (filteredDropShips.length > 0) {
+      res.status(200).json(filteredDropShips);
     } else {
       throw DropShipsError.DropShipNotFound();
     }
@@ -130,6 +148,9 @@ export const getDropShip = async (
       const getDropShips = await prisma.dropShips.findMany({
         where: {
           id: req.params.dropShipItemsId,
+        },
+        include: {
+          sizes: true, // Include the related sizes
         },
       });
 
@@ -257,6 +278,12 @@ export const updateDropShip = async (
         categories: updateData.categories,
         price: updateData.price,
         totalItemRemaining: updateData.totalItemRemaining,
+        sizes: {
+          update: updateData.sizes.map(size => ({
+            where: { id: size.id },
+            data: { totalItems: size.totalItems },
+          })),
+        },
       },
     });
 

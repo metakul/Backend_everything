@@ -130,6 +130,15 @@ model dropShips {
   price              Float?
   totalItemRemaining Int?
   status             String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  sizes              Size[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+model Size {
+  id                 String      @id @default(auto()) @map("_id") @db.ObjectId
+  sizeName           String
+  totalItems         Int
+  dropShipId         String
+  dropShip           dropShips   @relation(fields: [dropShipId], references: [id])
 }

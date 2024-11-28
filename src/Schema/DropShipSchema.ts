@@ -15,12 +15,18 @@ export const DropShipValidation = z.object({
     .trim().nonempty({ message: "Author is required" }),
   categories: z.array(z.string())
     .nonempty({ message: "Categories are required" }),
-    price: z.number()
+  price: z.number()
     .positive({ message: "Price must be a positive number" })
     .nonnegative({ message: "Price must not be negative" }),
   totalItemRemaining: z.number()
     .int({ message: "Total items remaining must be an integer" })
     .nonnegative({ message: "Total items remaining must not be negative" }),
+  sizes: z.array(z.object({
+    sizeName: z.string().nonempty({ message: "Size name is required" }),
+    totalItems: z.number()
+      .int({ message: "Total items must be an integer" })
+      .nonnegative({ message: "Total items must not be negative" }),
+  })).nonempty({ message: "Sizes are required" }),
   status: z.enum([DropShipsStatusInfo.APPROVED, DropShipsStatusInfo.PENDING, DropShipsStatusInfo.REJECTED])
 });
 
@@ -55,6 +61,15 @@ export const UpdateDropShipValidation = z.object({
     price: z.number()
     .positive({ message: "Price must be a positive number" })
     .nonnegative({ message: "Price must not be negative" }),
+  sizes: z.array(z.object({
+    id: z.string()
+    .trim()
+    .regex(/^[a-zA-Z0-9]+$/, { message: "DropShip ID must be alphanumeric" }),
+    sizeName: z.string().nonempty({ message: "Size name is required" }),
+    totalItems: z.number()
+      .int({ message: "Total items must be an integer" })
+      .nonnegative({ message: "Total items must not be negative" }),
+  })).nonempty({ message: "Sizes are required" }),
   totalItemRemaining: z.number()
     .int({ message: "Total items remaining must be an integer" })
     .nonnegative({ message: "Total items remaining must not be negative" }),

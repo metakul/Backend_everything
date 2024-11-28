@@ -10,6 +10,7 @@ export interface IUpadateDropShip {
     price?:number;
     totalItemRemaining?:number;
     status?:string
+  sizes: {id:string, sizeName: string; totalItems: number }[];
 }
 
 export interface IdropShip  {
@@ -21,8 +22,8 @@ export interface IdropShip  {
   price?:number;
 totalItemRemaining?:number;
   status:string
+  sizes: { sizeName: string; totalItems: number }[];
 }
-
 export function isJoiError(obj: any): obj is { isJoi: boolean } {
   return typeof obj === 'object' && obj !== null && 'isJoi' in obj;
 }
