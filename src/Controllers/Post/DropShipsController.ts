@@ -330,3 +330,49 @@ export const getCryptoInfo = async (
     next(error);
   }
 };
+
+
+
+
+
+/**
+ * Get dropShips by category
+ * @param req
+ * @param res
+ * @param next
+ */
+export const getDropShipsByCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { category } = req.query;
+
+    if (!category) {
+      throw DropShipsError.InvalidCategoryProvided();
+    }
+
+    const dropShips = await prisma.dropShips.findMany({
+      where: {
+        categories: {
+          has: category as string,
+        },
+        status: DropShipsStatusInfo.APPROVED, // Ensure the dropShips are approved
+      },
+      include: {
+        sizes: true,
+      },
+    });
+
+    console.log(dropShips);
+    
+    if (dropShips.length > 0) {
+      res.status(200).json(dropShips);
+    } else {
+      throw DropShipsError.DropShipNotFound();
+    }
+  } catch (error) {
+    next(error);
+  }
+};

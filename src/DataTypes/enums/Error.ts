@@ -428,6 +428,11 @@ export const DropShipsError = {
         message: "Invalid Status Provided",
         details: "The provided status is not valid."
     }),
+    InvalidCategoryProvided: (): ErrorObject => ({
+        statusCode: 400,
+        message: "Invalid Category Provided",
+        details: "The provided Category is not valid."
+    }),
     InvalidDropShipDetails: (dropShipItemsIdValidation:any): ErrorObject => ({
         statusCode: 400,
         message: "Invalid DropShip Details",

@@ -9,9 +9,10 @@ router.use(cors());
 //create dropShip
 router.post("/",checkJwt([UserCategory.ROADIES_SUPER_ADMIN]), DropShipController.CreateDropShip);
 
-
-
 // Route for fetching pending dropShips
+router.get('/dropShipType', DropShipController.getAllDropShipsByStatus);
+router.get('/dropShipCategory', DropShipController.getDropShipsByCategory);
+
 router.get('/dropShipType', DropShipController.getAllDropShipsByStatus);
 
 // get one dropShip
