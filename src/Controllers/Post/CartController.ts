@@ -21,7 +21,7 @@ export const addToCart = async (
     }
 
     const { email } = user; // Extract user email
-    const { id, name, size,quantity } = req.body; // Extract cart item details
+    const { id, name, size, quantity } = req.body; // Extract cart item details
 
     // Validate the fields
     if (!id || !name || !quantity) {
@@ -55,10 +55,10 @@ export const addToCart = async (
     const itemIndex = existingCartItems.findIndex((item: any) => item.id === id);
     if (itemIndex !== -1) {
       // If the item exists, increase the quantity by one
-      existingCartItems[itemIndex].quantity += 1;
+      existingCartItems[itemIndex].quantity += quantity;
     } else {
       // If the item doesn't exist, add it as a new item
-      const newItem: InputJsonValue = { id, name, quantity,size };
+      const newItem: InputJsonValue = { id, name, quantity, size };
       existingCartItems.push(newItem);
     }
 
@@ -70,10 +70,13 @@ export const addToCart = async (
       },
     });
 
-    // Respond with success
+    // Find the updated item in the cart
+    const updatedItem = updatedUser.cartItems.find((item: any) => item.id === id);
+
+    // Respond with success, returning only the item with the specified id
     return res.status(200).json({
       message: "Item added to cart successfully",
-      data: updatedUser.cartItems,
+      data: updatedItem,
       statusCode: 200,
     });
   } catch (error) {
@@ -119,16 +122,28 @@ export const removeFromCart = async (
       return res.status(404).json({ message: "User not found", statusCode: 404 });
     }
 
-    let existingCartItems = (existingUser.cartItems || []) as InputJsonValue[];
+    type CartItem = {
+      id: string;
+      name: string;
+      size?: string;
+      quantity: number;
+    };
 
-    // Find the item to remove
+    let existingCartItems = (existingUser.cartItems || []) as CartItem[];
+
+    // Find the item in the cart
     const itemIndex = existingCartItems.findIndex((item: any) => item.id === id);
     if (itemIndex === -1) {
       return res.status(404).json({ message: "Item not found in cart", statusCode: 404 });
     }
 
-    // Remove the item from the cart
-    existingCartItems = existingCartItems.filter((item: any) => item.id !== id);
+    // Reduce the quantity of the item by 1
+    existingCartItems[itemIndex].quantity -= 1;
+
+    // If the quantity becomes 0, remove the item from the cart
+    if (existingCartItems[itemIndex].quantity <= 0) {
+      existingCartItems = existingCartItems.filter((item: any) => item.id !== id);
+    }
 
     // Update the user's cartItems in the database
     const updatedUser = await prisma.wiwusers.update({
@@ -140,7 +155,7 @@ export const removeFromCart = async (
 
     // Respond with success
     return res.status(200).json({
-      message: "Item removed from cart successfully",
+      message: "Item quantity reduced successfully",
       data: updatedUser.cartItems,
       statusCode: 200,
     });
