@@ -7,9 +7,7 @@ import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 const router: Router = Router();
 router.use(cors());
 //create blog
-router.post("/",checkJwt, BlogController.CreateBlog);
-
-
+router.post("/",checkJwt([UserCategory.SUPER_ADMIN]), BlogController.CreateBlog);
 
 // Route for fetching pending blogs
 router.get('/blogType', BlogController.getAllBlogsByStatus);
