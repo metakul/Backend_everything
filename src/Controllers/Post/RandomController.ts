@@ -15,7 +15,7 @@ export const incrementDownloadCount = async (
         throw new Error("Internal Server Error");
     }
 
-    const { password } = req.body;
+    // const { password } = req.body;
 
     try {
         logWithMessageAndStep(
@@ -28,12 +28,12 @@ export const incrementDownloadCount = async (
         );
 
         // Verify password against env variable
-        const isPasswordValid = password === config.PASSWORD;
+        // const isPasswordValid = password === config.PASSWORD;
 
-        if (!isPasswordValid) {
-            logWithMessageAndStep(childLogger, "Error Step", "Invalid password", "incrementDownloadCount", "", "warn");
-            throw new Error("Unauthorized: Invalid password");
-        }
+        // if (!isPasswordValid) {
+        //     logWithMessageAndStep(childLogger, "Error Step", "Invalid password", "incrementDownloadCount", "", "warn");
+        //     throw new Error("Unauthorized: Invalid password");
+        // }
 
         // Retrieve or create the TotalDownload entry
         let totalDownload = await prisma.totalDownload.findFirst();
