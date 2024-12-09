@@ -13,6 +13,7 @@ import HardhatRoutes from './ContractRoutes/ContractRoutes.js';
 import PasswordLessLoginRoutes from './PasswordLessLogin/PasswordLessLoginRoute.js';
 import PaymentRoutes from './PaymentRoutes/PaymentRoutes.js';
 import CartRoutes from './CartRoutes/CartRoutes.js';
+import MoralisRoutes from './MoralisRoutes/MoralisRoutes.js';
 import DheliveryRoutes from './DheliveryRoutes/DheliveryRoutes.js';
 import handleError from "../Middleware/error.js";
 import { Request, Response, NextFunction } from "express";
@@ -122,6 +123,11 @@ router.use(
   "/V1/DropShip",
   CheckPrismaConnection,
   DropShipRoutes
+);
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  MoralisRoutes
 );
 
 router.use(handleError)
