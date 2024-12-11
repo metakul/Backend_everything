@@ -275,7 +275,7 @@ export const refreshLoginToken = async (
         return next(new Error('Internal Server Error'));
     }
 
-    const refreshToken = req.cookies.refresh_token;
+    const refreshToken = req?.cookies?.refresh_token;
 
 
     if (!refreshToken) {

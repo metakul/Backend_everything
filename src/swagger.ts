@@ -5,7 +5,7 @@ import { Express } from 'express';
 const PORT = process.env.PORT || 3000;
 
 const swaggerOptions = {
-  swaggerDefinition: {
+  definition: {
     openapi: '3.0.0',
     info: {
       title: 'API Documentation For C3I',
@@ -14,7 +14,7 @@ const swaggerOptions = {
       contact: {
         name: 'Developer',
       },
-      servers: [`http://localhost:${PORT}`],
+      servers: [`http://localhost:${PORT}`,`https://backend-everything-37ada44e5086.herokuapp.com`],
     },
     components: {
       securitySchemes: {
@@ -45,5 +45,18 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 export const setupSwagger = (app: Express) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+  app.get('/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerDocs);
+  });
+  app.use('/api-docs', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT');
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    );
+    next();
+  }, swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+  
 };
