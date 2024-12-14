@@ -142,3 +142,18 @@ model Size {
   dropShipId         String
   dropShip           dropShips   @relation(fields: [dropShipId], references: [id])
 }
+
+
+model Course {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  topics  Topic[]
+}
+
+model Topic {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+}

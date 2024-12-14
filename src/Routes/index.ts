@@ -14,6 +14,7 @@ import PasswordLessLoginRoutes from './PasswordLessLogin/PasswordLessLoginRoute.
 import PaymentRoutes from './PaymentRoutes/PaymentRoutes.js';
 import CartRoutes from './CartRoutes/CartRoutes.js';
 import MoralisRoutes from './MoralisRoutes/MoralisRoutes.js';
+import CoursesRoutes from './CoursesRoutes/CoursesRoutes.js';
 import DheliveryRoutes from './DheliveryRoutes/DheliveryRoutes.js';
 import handleError from "../Middleware/error.js";
 import { Request, Response, NextFunction } from "express";
@@ -128,6 +129,11 @@ router.use(
   "/V1",
   CheckPrismaConnection,
   MoralisRoutes
+);
+router.use(
+  "/V1",
+  CheckPrismaConnection,
+  CoursesRoutes
 );
 
 router.use(handleError)
