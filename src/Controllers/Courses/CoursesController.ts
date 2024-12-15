@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../../db/client.js";
-import { ObjectId } from "mongodb";
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Add a new course
@@ -16,10 +16,10 @@ export const addCourse = async (
   try {
     const { name, topics } = req.body;
 
-    // Ensure all topic IDs are valid ObjectIDs
+    // Ensure all topic IDs are valid UUIDs
     const formattedTopics = topics.map((topic: any) => ({
       ...topic,
-      id: new ObjectId().toString(),
+      id: uuidv4(),
     }));
 
     const newCourse = await prisma.course.create({
@@ -52,10 +52,10 @@ export const addTopicsToCourse = async (
     const { courseId } = req.params;
     const { topics } = req.body;
 
-    // Ensure all topic IDs are valid ObjectIDs
+    // Ensure all topic IDs are valid UUIDs
     const formattedTopics = topics.map((topic: any) => ({
       ...topic,
-      id: new ObjectId().toString(),
+      id: uuidv4(),
     }));
 
     const updatedCourse = await prisma.course.update({
