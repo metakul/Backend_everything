@@ -10,6 +10,43 @@ import { UserCategory } from "../../DataTypes/enums/IUserEnums.js";
 const router = express.Router({ mergeParams: true });
 
 
+/**
+ * @swagger
+ * /passwordless/registerUser:
+ *   post:
+ *     summary: Register a new user
+ *     tags: 
+ *       - PasswordLess
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "1234567890"
+ *               email:
+ *                 type: string
+ *                 example: "john.doe@example.com"
+ *               address:
+ *                 type: string
+ *                 example: "123 Main St"
+ *               category:
+ *                 type: string
+ *                 example: "user"
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
 
 router.post("/passwordless/registerUser", PasswordLessLogin.registerUser);
 
@@ -20,7 +57,7 @@ router.post("/passwordless/registerUser", PasswordLessLogin.registerUser);
  *   post:
  *     summary: User login with OTP
  *     tags: 
- *       - Common
+ *       - PasswordLess
  *     requestBody:
  *       required: true
  *       content:
@@ -53,7 +90,7 @@ router.post("/passwordless/login", PasswordLessLogin.loginWithOtp);
  *   post:
  *     summary: Verify OTP for login
  *     tags: 
- *       - Common
+ *       - PasswordLess
  *     requestBody:
  *       required: true
  *       content:
